@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ただ穴に玉を入れるだけのゲーム</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="landscapeWarning">縦画面（ポートレート）でプレイしてください<br><br>※スマホの画面回転ロックをオンにすることをおすすめします</div>
+      <!-- PixiJS Canvas Container -->
+      <div id="gameContainer"></div>
+      
+      <div id="uiLayer">
+        <div id="stageIndicator" style="display: none;">STAGE 1</div>
+        
+        <div id="titleScreen">
+          <h1>ただ穴に<br>玉を入れる<br>だけのゲーム</h1>
+          <button id="startButton">GAME START</button>
+          <div id="guideText">スマホを水平にしてスタートしてください</div>
+          <div id="installContainer" style="display: none; position: absolute; bottom: 40px;">
+            <button id="installButton" style="padding: 12px 24px; font-size: 16px; font-weight: bold; background-color: #2980b9; color: white; border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 0 15px rgba(41, 128, 185, 0.8); pointer-events: auto;">アプリをインストールする</button>
+          </div>
+        </div>
+        
+        <div id="statusMessage" style="display: none;">STAGE CLEAR!</div>
+        
+        <div id="endingScreen" style="display: none;">
+          <h1>CONGRATULATIONS!</h1>
+          <p>全10ステージクリア！おめでとうございます！</p>
+          <button id="restartButton">最初から遊ぶ</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
