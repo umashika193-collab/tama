@@ -1,4 +1,4 @@
-window.onerror = function (msg, url, lineNo, columnNo, error) {
+window.onerror = function (msg) {
   const statusMessage = document.getElementById('statusMessage');
   if (statusMessage) {
     statusMessage.style.display = 'block';
@@ -56,7 +56,7 @@ const runner = Runner.create();
 const soundManager = new SoundManager();
 const inputManager = new InputManager(engine);
 const renderer = new Renderer(app, engine);
-const stageManager = new StageManager(engine, renderer, soundManager);
+const stageManager = new StageManager(engine);
 let currentStage = 1; // 通常モード（ステージ1から開始）
 let isGameOver = false;
 
@@ -114,9 +114,9 @@ document.addEventListener('visibilitychange', async () => {
   
   // Audio Context Pause/Resume
   if (document.hidden) {
-    soundManager.ctx?.suspend();
+    (soundManager as any).ctx?.suspend();
   } else {
-    soundManager.ctx?.resume();
+    (soundManager as any).ctx?.resume();
   }
 });
 

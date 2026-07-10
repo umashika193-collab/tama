@@ -1,7 +1,5 @@
 export class SoundManager {
   private ctx: AudioContext | null = null;
-  private bgmOscillators: OscillatorNode[] = [];
-  private currentStage = 0;
 
   public init() {
     // ユーザーインタラクション時にAudioContextを初期化
@@ -58,7 +56,7 @@ export class SoundManager {
   private bgmIntervalId: number | null = null;
   private droneOscillator: OscillatorNode | null = null;
 
-  public playBGM(stage: number) {
+  public playBGM(_stage?: number) {
     if (!this.ctx) return;
     
     // 全ステージ共通でケルト風BGM（アルタン風）を流す
