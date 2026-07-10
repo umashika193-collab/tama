@@ -18,6 +18,9 @@ import { SoundManager } from './core/SoundManager';
 // @ts-ignore
 import { registerSW } from 'virtual:pwa-register';
 
+// @ts-ignore
+declare const __APP_VERSION__: string;
+
 // PWA Service Worker Registration
 registerSW({ immediate: true });
 
@@ -29,6 +32,11 @@ const restartButton = document.getElementById('restartButton')!;
 const gameContainer = document.getElementById('gameContainer')!;
 const stageIndicator = document.getElementById('stageIndicator')!;
 const statusMessage = document.getElementById('statusMessage')!;
+const versionDisplay = document.getElementById('versionDisplay')!;
+
+if (versionDisplay && typeof __APP_VERSION__ !== 'undefined') {
+  versionDisplay.textContent = __APP_VERSION__;
+}
 
 // 1. Initialize PixiJS Application
 const app = new PIXI.Application();
