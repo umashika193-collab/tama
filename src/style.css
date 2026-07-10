@@ -133,22 +133,52 @@ body, html {
 #endingScreen {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(26, 30, 36, 0.95);
+  background: rgba(26, 30, 36, 1);
   color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   z-index: 200;
   pointer-events: auto;
+  overflow: hidden;
 }
 
-#endingScreen h1 {
-  font-size: 40px;
-  color: #f1c40f;
+.credits-roll {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
   text-align: center;
-  margin-bottom: 20px;
+  /* animation is assigned via JS */
+}
+
+.credits-roll h1 {
+  font-size: 36px;
+  color: #f1c40f;
+  margin-bottom: 10px;
   text-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
+}
+
+.credits-roll h2 {
+  font-size: 20px;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.credits-roll h3 {
+  font-size: 18px;
+  color: #f39c12;
+  margin-bottom: 10px;
+}
+
+.credits-roll p {
+  font-size: 16px;
+  color: #ddd;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+@keyframes scrollCredits {
+  0% { top: 100%; transform: translate(-50%, 0); }
+  100% { top: 50%; transform: translate(-50%, -50%); }
 }
 
 #restartButton {

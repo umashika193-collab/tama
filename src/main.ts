@@ -63,7 +63,20 @@ let isGameOver = false;
 stageManager.onClear = () => {
   soundManager.playClear();
   if (stageManager.getCurrentStage() >= 10) {
-    endingScreen.style.display = 'flex';
+    endingScreen.style.display = 'block';
+    restartButton.style.display = 'none';
+    
+    // アニメーションをリセットして再生
+    const roll = document.querySelector('.credits-roll') as HTMLElement;
+    if (roll) {
+      roll.style.animation = 'none';
+      roll.offsetHeight; // trigger reflow
+      roll.style.animation = 'scrollCredits 12s linear forwards';
+    }
+
+    setTimeout(() => {
+      restartButton.style.display = 'block';
+    }, 12500);
   } else {
     statusMessage.textContent = 'STAGE CLEAR!';
     statusMessage.className = '';
