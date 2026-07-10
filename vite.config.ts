@@ -3,6 +3,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig({
+  base: '/tama/',
   server: {
     host: '0.0.0.0',
     port: 3000

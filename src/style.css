@@ -56,7 +56,7 @@ body, html {
   content: "";
   position: absolute;
   top: -10%; left: -10%; width: 120%; height: 120%;
-  background-image: url('/title-bg.jpg');
+  background-image: url('./assets/title-bg.jpg');
   background-size: cover;
   background-position: center bottom;
   filter: blur(20px) brightness(0.4);
@@ -67,7 +67,7 @@ body, html {
   content: "";
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
-  background-image: url('/title-bg.jpg');
+  background-image: url('./assets/title-bg.jpg');
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
