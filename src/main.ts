@@ -65,7 +65,10 @@ const soundManager = new SoundManager();
 const inputManager = new InputManager(engine);
 const renderer = new Renderer(app, engine);
 const stageManager = new StageManager(engine);
-let currentStage = 1; // 通常モード（ステージ1から開始）
+const urlParams = new URLSearchParams(window.location.search);
+const startStageParam = urlParams.get('stage');
+let currentStage = startStageParam ? parseInt(startStageParam, 10) : 9; // テストモードオン（デフォルトでステージ9から開始）
+const initialStage = currentStage;
 let isGameOver = false;
 
 stageManager.onClear = () => {
@@ -186,7 +189,7 @@ startButton.addEventListener('click', async () => {
   if (isGameOver) {
     // restart game
     isGameOver = false;
-    currentStage = 1; // ミスした場合はステージ1からやり直し
+    currentStage = initialStage; // ミスした場合は開始ステージからやり直し
   }
   titleScreen.style.display = 'none';
   soundManager.init();
@@ -195,7 +198,7 @@ startButton.addEventListener('click', async () => {
 
 restartButton.addEventListener('click', () => {
   endingScreen.style.display = 'none';
-  stageManager.initStage(1);
+  stageManager.initStage(initialStage);
 });
 
 // ==== PWA Installation Logic ====
