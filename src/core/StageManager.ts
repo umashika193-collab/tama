@@ -149,41 +149,35 @@ export class StageManager {
         Bodies.rectangle(w/2, h*0.45, w*0.4, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.05, originX: w/2, range: w*0.3 } })
       ]);
     } else if (n === 10) {
-      // Stage 10: 直感とひらめきのパズル（IQ100）
-      // ゴールの視認性を高め、すり抜けバグを防止するために大きくする
+      // Stage 10: 巨大風車ビリヤード（IQ100反射パズル）
       Composite.remove(this.engine.world, goal);
-      const bigGoal = Bodies.circle(w * 0.2, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
+      const bigGoal = Bodies.circle(w * 0.8, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
       
+      const windmill = Bodies.rectangle(w/2, h/2, w*1.5, 20, { 
+        isStatic: true, 
+        label: 'wall', 
+        plugin: { type: 'windmill', speed: 0.035 } 
+      });
+
       Composite.add(this.engine.world, [
         bigGoal,
+        windmill,
         
-        // ゴールの受け皿（ポチャッと入れるため）
-        Bodies.rectangle(w * 0.2, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
-        Bodies.rectangle(w * 0.2 - 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
+        // ゴールを直接狙えないようにする受け皿（左と下を塞ぐ）
+        Bodies.rectangle(w * 0.8, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w * 0.8 - 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
         
-        // 中央の巨大な斜め壁 ( / 向き )
-        // 直接左上のゴールを狙うと、この壁の右下側の面に当たって弾き返される
-        Bodies.rectangle(w / 2, h * 0.45, w * 0.7, 20, { 
-          isStatic: true, 
-          angle: -Math.PI / 4, 
-          label: 'wall' 
-        }),
-        
-        // ひらめきの正解ルート用バンパー（右下）
-        // あえて右下に撃つことで左上に向かって強く跳ね返り、斜め壁の「裏側」を通ってゴールへ！
-        Bodies.circle(w * 0.85, h * 0.75, 45, { 
+        // 正解ルート用バンパー（左側）
+        // 下から左のバンパーへ撃ち、風車の裏を通って右上のゴールへ反射させる
+        Bodies.circle(w * 0.2, h * 0.65, 45, { 
           isStatic: true, 
           restitution: 1.5, 
           label: 'bumper' 
         }),
-        
-        // IQ100への昇華要素：軌道を塞ぐフェイント壁
-        // 単に撃つだけではなく、バンパーへ当てる（または跳ね返る）タイミングを計算する必要がある
-        Bodies.rectangle(w * 0.65, h * 0.65, 20, 150, { 
-          isStatic: true, 
-          label: 'moving_wall', 
-          plugin: { type: 'feint_wall', phase: 0, speed: 0.035, originX: w * 0.65, range: w * 0.25 } 
-        })
+
+        // 失敗時の死のペナルティ（トラップ）
+        Bodies.circle(w * 0.2, h * 0.9, 40, { isStatic: true, label: 'trap' }),
+        Bodies.circle(w * 0.8, h * 0.9, 40, { isStatic: true, label: 'trap' })
       ]);
     } else if (n === 11) {
       // Stage 11: 複合（風車＆トラップ＆逃げる穴）
