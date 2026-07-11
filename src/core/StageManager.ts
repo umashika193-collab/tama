@@ -175,6 +175,14 @@ export class StageManager {
           isStatic: true, 
           restitution: 1.5, 
           label: 'bumper' 
+        }),
+        
+        // IQ100への昇華要素：軌道を塞ぐフェイント壁
+        // 単に撃つだけではなく、バンパーへ当てる（または跳ね返る）タイミングを計算する必要がある
+        Bodies.rectangle(w * 0.65, h * 0.65, 20, 150, { 
+          isStatic: true, 
+          label: 'moving_wall', 
+          plugin: { type: 'feint_wall', phase: 0, speed: 0.035, originX: w * 0.65, range: w * 0.25 } 
         })
       ]);
     } else if (n === 11) {
