@@ -149,35 +149,42 @@ export class StageManager {
         Bodies.rectangle(w/2, h*0.45, w*0.4, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.05, originX: w/2, range: w*0.3 } })
       ]);
     } else if (n === 10) {
-      // Stage 10: 巨大風車ビリヤード（IQ100反射パズル）
+      // Stage 10: 巨大十字風車ビリヤード（IQ100反射パズル・本気版）
       Composite.remove(this.engine.world, goal);
-      const bigGoal = Bodies.circle(w * 0.8, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
+      const bigGoal = Bodies.circle(w * 0.85, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
       
-      const windmill = Bodies.rectangle(w/2, h/2, w*1.5, 20, { 
-        isStatic: true, 
-        label: 'wall', 
-        plugin: { type: 'windmill', speed: 0.035 } 
-      });
+      // 巨大十字風車（厚さ80でトンネリング防止、4枚羽根で隙間を極限まで減らす）
+      const windmill1 = Bodies.rectangle(w/2, h/2, w*1.5, 80, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.045 } });
+      const windmill2 = Bodies.rectangle(w/2, h/2, 80, w*1.5, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.045 } });
+      // 初期角度を90度ずらして綺麗な十字にする
+      Body.setAngle(windmill2, Math.PI / 2);
 
       Composite.add(this.engine.world, [
         bigGoal,
-        windmill,
+        windmill1,
+        windmill2,
         
-        // ゴールを直接狙えないようにする受け皿（左と下を塞ぐ）
-        Bodies.rectangle(w * 0.8, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
-        Bodies.rectangle(w * 0.8 - 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
+        // ゴール（右上）を下と左から塞ぐ受け皿
+        Bodies.rectangle(w * 0.85, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w * 0.85 - 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
         
-        // 正解ルート用バンパー（左側）
-        // 下から左のバンパーへ撃ち、風車の裏を通って右上のゴールへ反射させる
-        Bodies.circle(w * 0.2, h * 0.65, 45, { 
+        // 反射バンパー（左上）
+        // プレイヤーは下から風車の隙間を縫って左上のバンパーに当てる必要がある。
+        // バンパーに当たると右に向かって反射し、右上のゴールへ飛んでいく（ここでも風車の隙間を縫う必要がある）
+        Bodies.circle(w * 0.15, h * 0.15, 45, { 
           isStatic: true, 
           restitution: 1.5, 
           label: 'bumper' 
         }),
+        
+        // バンパーの周りを少し囲って、適当な反射を防ぐ（下から綺麗に当てないと右へ飛ばないようにする）
+        Bodies.rectangle(w * 0.15 - 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w * 0.15, h * 0.05, 140, 20, { isStatic: true, label: 'wall' }),
 
-        // 失敗時の死のペナルティ（トラップ）
+        // 画面下部の死のペナルティ
         Bodies.circle(w * 0.2, h * 0.9, 40, { isStatic: true, label: 'trap' }),
-        Bodies.circle(w * 0.8, h * 0.9, 40, { isStatic: true, label: 'trap' })
+        Bodies.circle(w * 0.8, h * 0.9, 40, { isStatic: true, label: 'trap' }),
+        Bodies.circle(w * 0.5, h * 0.95, 40, { isStatic: true, label: 'trap' })
       ]);
     } else if (n === 11) {
       // Stage 11: 複合（風車＆トラップ＆逃げる穴）
