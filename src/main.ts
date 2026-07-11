@@ -20,7 +20,8 @@ import { registerSW } from 'virtual:pwa-register';
 import { Pane } from 'tweakpane';
 import { GAME_CONFIG } from './core/Config';
 
-// Tweakpane UI initialization
+// Tweakpane UI initialization (God Mode Off)
+/*
 const tunerContainer = document.getElementById('tunerContainer');
 const pane = new Pane({ 
   title: 'God Mode (Tuner)',
@@ -33,12 +34,10 @@ p.addBinding(GAME_CONFIG, 'stage10WindmillWidthRatio', { min: 0.4, max: 1.5, ste
 p.addButton({ title: 'Restart Stage' }).on('click', () => {
   const titleScreen = document.getElementById('titleScreen');
   if (titleScreen && titleScreen.style.display === 'none') {
-    // Reload current stage to apply some structural changes
-    // Assuming stageManager and currentStage will be accessible or we trigger a global event.
-    // Instead of directly calling stageManager here, we can dispatch a custom event.
     window.dispatchEvent(new CustomEvent('restartStageEvent'));
   }
 });
+*/
 
 // @ts-ignore
 declare const __APP_VERSION__: string;
@@ -89,7 +88,7 @@ const renderer = new Renderer(app, engine);
 const stageManager = new StageManager(engine);
 const urlParams = new URLSearchParams(window.location.search);
 const startStageParam = urlParams.get('stage');
-let currentStage = startStageParam ? parseInt(startStageParam, 10) : 9; // テストモードオン（デフォルトでステージ9から開始）
+let currentStage = startStageParam ? parseInt(startStageParam, 10) : 1; // テストモードオフ（ステージ1から開始）
 const initialStage = currentStage;
 let isGameOver = false;
 

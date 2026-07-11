@@ -124,7 +124,11 @@ export class StageManager {
       });
       Composite.add(this.engine.world, feintWall);
     } else if (n === 7) {
-      // Stage 7: 愛しの全画面風車（速度低下＆罠削減）
+      // Stage 7: 3倍速逃げる穴（爆速鬼ごっこ） - 元Stage 8
+      goal.plugin = { type: 'escaping_goal', speed: 4.5 };
+      Composite.add(this.engine.world, goal);
+    } else if (n === 8) {
+      // Stage 8: 愛しの全画面風車（速度低下＆罠削減） - 元Stage 7
       Composite.add(this.engine.world, goal);
       const windmill = Bodies.rectangle(w/2, h/2, w*1.5, 20, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.04 } });
       Composite.add(this.engine.world, [
@@ -132,10 +136,6 @@ export class StageManager {
         Bodies.circle(w*0.2, h*0.2, 40, { isStatic: true, label: 'trap' }),
         Bodies.circle(w*0.8, h*0.8, 40, { isStatic: true, label: 'trap' }) // 対角線の2隅のみに削減
       ]);
-    } else if (n === 8) {
-      // Stage 8: 3倍速逃げる穴（爆速鬼ごっこ）
-      goal.plugin = { type: 'escaping_goal', speed: 4.5 };
-      Composite.add(this.engine.world, goal);
     } else if (n === 9) {
       // Stage 9: 複合（ピンボール＆壁） - トラップがフェイント移動する
       goal.position.y = 150;
