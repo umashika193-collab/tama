@@ -17,8 +17,8 @@ import { StageManager } from './core/StageManager';
 import { SoundManager } from './core/SoundManager';
 // @ts-ignore
 import { registerSW } from 'virtual:pwa-register';
-import { Pane } from 'tweakpane';
-import { GAME_CONFIG } from './core/Config';
+// import { Pane } from 'tweakpane';
+// import { GAME_CONFIG } from './core/Config';
 
 // Tweakpane UI initialization (God Mode Off)
 /*
