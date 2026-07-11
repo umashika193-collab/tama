@@ -235,3 +235,17 @@ body, html {
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 0 10px rgba(255,255,255,0.4), 1px 1px 3px rgba(0,0,0,0.8);
 }
+
+/* Tweakpane (God Mode Tuner) Smartphone Optimization */
+.tp-dfwv {
+  z-index: 9999 !important;
+  width: 280px !important;
+}
+
+@media screen and (max-width: 600px) {
+  .tp-dfwv {
+    width: 90% !important;
+    right: 5% !important;
+    top: 60px !important; /* Avoid title/status overlaps */
+  }
+}
