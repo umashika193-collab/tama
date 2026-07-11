@@ -37,7 +37,7 @@ export class StageManager {
             const dx = playerBody.position.x - otherBody.position.x;
             const dy = playerBody.position.y - otherBody.position.y;
             const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-            const speed = 25; // 爆発的な初速（Velocityを強制上書き）
+            const speed = 12; // 適度な初速（Velocityを強制上書き）
             Body.setVelocity(playerBody, {
               x: (dx / dist) * speed,
               y: (dy / dist) * speed
