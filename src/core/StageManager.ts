@@ -149,34 +149,32 @@ export class StageManager {
         Bodies.rectangle(w/2, h*0.45, w*0.4, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.05, originX: w/2, range: w*0.3 } })
       ]);
     } else if (n === 10) {
-      // Stage 10: 巨大風車ビリヤード（適正バランス版）
+      // Stage 10: 直感ビリヤードパズル（リスキル・即死トラップ完全排除）
+      // プレイヤーが時間をかけて「どうすれば届くか」を考え、思い通りに反射したときの気持ちよさに特化。
       Composite.remove(this.engine.world, goal);
-      const bigGoal = Bodies.circle(w * 0.85, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
-      
-      // Stage 7と同じ「厚さ20の1本風車」に戻し、理不尽な運ゲー（鬼畜）を排除
-      // プレイヤーが「隙間」をしっかり狙えるようにする
-      const windmill = Bodies.rectangle(w/2, h/2, w*1.5, 20, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.04 } });
+      const bigGoal = Bodies.circle(w * 0.15, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
 
       Composite.add(this.engine.world, [
         bigGoal,
-        windmill,
         
-        // ゴール（右上）を下と左から塞ぐ受け皿
-        Bodies.rectangle(w * 0.85, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
-        Bodies.rectangle(w * 0.85 - 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
-        
-        // 反射バンパー（左下寄りに配置）
-        // プレイヤーから当てやすく、かつ右上のゴールへ綺麗な斜め軌道を描く位置
-        Bodies.circle(w * 0.15, h * 0.6, 45, { 
+        // ゴール（左上）の受け皿。スポッと入る快感を重視。
+        Bodies.rectangle(w * 0.15, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w * 0.15 + 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
+
+        // 中央の邪魔な壁（直接ゴールを狙うのを防ぐ）
+        Bodies.rectangle(w / 2, h / 2, w * 0.6, 20, { isStatic: true, label: 'wall' }),
+
+        // 反射用の斜め壁（右下）
+        // プレイヤーが右下に向かって撃つと、この壁に当たって「真上」へ反射する
+        Bodies.rectangle(w * 0.85, h * 0.75, 200, 20, { isStatic: true, angle: -Math.PI / 4, label: 'wall' }),
+
+        // ゴールへの最終アシストバンパー（右上・天井付近）
+        // 真上に飛んできたボールがこれに当たり、「左」へ反射してゴールへ向かう
+        Bodies.circle(w * 0.85, h * 0.15, 45, { 
           isStatic: true, 
           restitution: 1.5, 
           label: 'bumper' 
-        }),
-        
-        // 画面下部の死のペナルティ
-        Bodies.circle(w * 0.2, h * 0.9, 40, { isStatic: true, label: 'trap' }),
-        Bodies.circle(w * 0.8, h * 0.9, 40, { isStatic: true, label: 'trap' }),
-        Bodies.circle(w * 0.5, h * 0.95, 40, { isStatic: true, label: 'trap' })
+        })
       ]);
     } else if (n === 11) {
       // Stage 11: 複合（風車＆トラップ＆逃げる穴）
