@@ -26,10 +26,11 @@ const pane = new Pane({
   title: 'God Mode (Tuner)',
   container: tunerContainer || document.body
 });
-pane.addBinding(GAME_CONFIG, 'bumperSpeed', { min: 5, max: 30, step: 1 });
-pane.addBinding(GAME_CONFIG, 'stage10WindmillSpeed', { min: 0.01, max: 0.1, step: 0.005 });
-pane.addBinding(GAME_CONFIG, 'stage10WindmillWidthRatio', { min: 0.4, max: 1.5, step: 0.1 });
-pane.addButton({ title: 'Restart Stage' }).on('click', () => {
+const p = pane as any;
+p.addBinding(GAME_CONFIG, 'bumperSpeed', { min: 5, max: 30, step: 1 });
+p.addBinding(GAME_CONFIG, 'stage10WindmillSpeed', { min: 0.01, max: 0.1, step: 0.005 });
+p.addBinding(GAME_CONFIG, 'stage10WindmillWidthRatio', { min: 0.4, max: 1.5, step: 0.1 });
+p.addButton({ title: 'Restart Stage' }).on('click', () => {
   const titleScreen = document.getElementById('titleScreen');
   if (titleScreen && titleScreen.style.display === 'none') {
     // Reload current stage to apply some structural changes
