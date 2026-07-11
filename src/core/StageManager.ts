@@ -1,4 +1,5 @@
 import { Engine, World, Bodies, Body, Composite, Events } from 'matter-js';
+import { GAME_CONFIG } from './Config';
 
 export class StageManager {
   private engine: Engine;
@@ -37,7 +38,7 @@ export class StageManager {
             const dx = playerBody.position.x - otherBody.position.x;
             const dy = playerBody.position.y - otherBody.position.y;
             const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-            const speed = 12; // 適度な初速（Velocityを強制上書き）
+            const speed = GAME_CONFIG.bumperSpeed; // リアルタイムチューナーの値を使用
             Body.setVelocity(playerBody, {
               x: (dx / dist) * speed,
               y: (dy / dist) * speed
@@ -149,33 +150,41 @@ export class StageManager {
         Bodies.rectangle(w/2, h*0.45, w*0.4, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.05, originX: w/2, range: w*0.3 } })
       ]);
     } else if (n === 10) {
-      // Stage 10: 直感ビリヤードパズル ＋ 風車先輩の帰還
-      // プレイヤーが考える時間は安全地帯で確保しつつ、Z字反射ルートの途中に風車が立ち塞がる。
+      // Stage 10: 直感ビリヤードパズル ＋ 風車先輩の帰還（チューナー対応）
       Composite.remove(this.engine.world, goal);
       const bigGoal = Bodies.circle(w * 0.15, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
 
-      // 風車先輩の復帰（初期位置のプレイヤーには絶対に届かない「w * 0.8」の長さに抑制）
-      const windmill = Bodies.rectangle(w/2, h/2, w*0.8, 20, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.04 } });
+      // 風車先輩の復帰（パラメータ連動）
+      const windmill = Bodies.rectangle(w/2, h/2, w * GAME_CONFIG.stage10WindmillWidthRatio, 20, { 
+        isStatic: true, 
+        label: 'wall', 
+        plugin: { type: 'windmill', speed: GAME_CONFIG.stage10WindmillSpeed } 
+      });
 
       Composite.add(this.engine.world, [
         bigGoal,
         windmill,
         
-        // ゴール（左上）の受け皿。スポッと入る快感を重視。
+        // ゴール（左上）の受け皿
         Bodies.rectangle(w * 0.15, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
         Bodies.rectangle(w * 0.15 + 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
 
         // 反射用の斜め壁（右下）
-        // プレイヤーが右下に向かって撃つと、この壁に当たって「真上」へ反射する
         Bodies.rectangle(w * 0.85, h * 0.75, 200, 20, { isStatic: true, angle: -Math.PI / 4, label: 'wall' }),
 
-        // ゴールへの最終アシストバンパー（右上・天井付近）
-        // 真上に飛んできたボールがこれに当たり、「左」へ反射してゴールへ向かう
+        // ゴールへの最終アシストバンパー（右上）
         Bodies.circle(w * 0.85, h * 0.15, 45, { 
           isStatic: true, 
           restitution: 1.5, 
           label: 'bumper' 
-        })
+        }),
+
+        // 適度な即死トラップ（リスキルしない安全な距離で、ミスを咎める）
+        // 天井中央（強すぎた時のペナルティ）
+        Bodies.circle(w * 0.5, h * 0.05, 40, { isStatic: true, label: 'trap' }),
+        // 左下隅と右下隅（変な角度で弾かれた時のペナルティ）
+        Bodies.circle(w * 0.1, h * 0.9, 40, { isStatic: true, label: 'trap' }),
+        Bodies.circle(w * 0.9, h * 0.9, 40, { isStatic: true, label: 'trap' })
       ]);
     } else if (n === 11) {
       // Stage 11: 複合（風車＆トラップ＆逃げる穴）

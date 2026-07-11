@@ -17,6 +17,23 @@ import { StageManager } from './core/StageManager';
 import { SoundManager } from './core/SoundManager';
 // @ts-ignore
 import { registerSW } from 'virtual:pwa-register';
+import { Pane } from 'tweakpane';
+import { GAME_CONFIG } from './core/Config';
+
+// Tweakpane UI initialization
+const pane = new Pane({ title: 'God Mode (Tuner)' });
+pane.addBinding(GAME_CONFIG, 'bumperSpeed', { min: 5, max: 30, step: 1 });
+pane.addBinding(GAME_CONFIG, 'stage10WindmillSpeed', { min: 0.01, max: 0.1, step: 0.005 });
+pane.addBinding(GAME_CONFIG, 'stage10WindmillWidthRatio', { min: 0.4, max: 1.5, step: 0.1 });
+pane.addButton({ title: 'Restart Stage' }).on('click', () => {
+  const titleScreen = document.getElementById('titleScreen');
+  if (titleScreen && titleScreen.style.display === 'none') {
+    // Reload current stage to apply some structural changes
+    // Assuming stageManager and currentStage will be accessible or we trigger a global event.
+    // Instead of directly calling stageManager here, we can dispatch a custom event.
+    window.dispatchEvent(new CustomEvent('restartStageEvent'));
+  }
+});
 
 // @ts-ignore
 declare const __APP_VERSION__: string;
@@ -199,6 +216,12 @@ startButton.addEventListener('click', async () => {
 restartButton.addEventListener('click', () => {
   endingScreen.style.display = 'none';
   stageManager.initStage(initialStage);
+});
+
+window.addEventListener('restartStageEvent', () => {
+  if (!isGameOver) {
+    stageManager.initStage(currentStage);
+  }
 });
 
 // ==== PWA Installation Logic ====
