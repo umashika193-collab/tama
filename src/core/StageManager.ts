@@ -149,20 +149,21 @@ export class StageManager {
         Bodies.rectangle(w/2, h*0.45, w*0.4, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.05, originX: w/2, range: w*0.3 } })
       ]);
     } else if (n === 10) {
-      // Stage 10: 直感ビリヤードパズル（リスキル・即死トラップ完全排除）
-      // プレイヤーが時間をかけて「どうすれば届くか」を考え、思い通りに反射したときの気持ちよさに特化。
+      // Stage 10: 直感ビリヤードパズル ＋ 風車先輩の帰還
+      // プレイヤーが考える時間は安全地帯で確保しつつ、Z字反射ルートの途中に風車が立ち塞がる。
       Composite.remove(this.engine.world, goal);
       const bigGoal = Bodies.circle(w * 0.15, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
 
+      // 風車先輩の復帰（初期位置のプレイヤーには絶対に届かない「w * 0.8」の長さに抑制）
+      const windmill = Bodies.rectangle(w/2, h/2, w*0.8, 20, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.04 } });
+
       Composite.add(this.engine.world, [
         bigGoal,
+        windmill,
         
         // ゴール（左上）の受け皿。スポッと入る快感を重視。
         Bodies.rectangle(w * 0.15, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
         Bodies.rectangle(w * 0.15 + 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
-
-        // 中央の邪魔な壁（直接ゴールを狙うのを防ぐ）
-        Bodies.rectangle(w / 2, h / 2, w * 0.6, 20, { isStatic: true, label: 'wall' }),
 
         // 反射用の斜め壁（右下）
         // プレイヤーが右下に向かって撃つと、この壁に当たって「真上」へ反射する
