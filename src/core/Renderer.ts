@@ -89,7 +89,7 @@ export class Renderer {
       gfx.circle(0, 0, body.circleRadius);
       gfx.stroke({ width: 3, color: 0x2ecc71 }); // 縁のネオン
       gfx.filters = [new GlowFilter({ distance: 15, outerStrength: 3, color: 0x2ecc71 })];
-    } else if (label === 'trap') {
+    } else if (label === 'trap' || label === 'moving_trap_telegraph') {
       if (body.circleRadius) {
         gfx.circle(0, 0, body.circleRadius);
       } else {
@@ -97,9 +97,16 @@ export class Renderer {
         const h = body.bounds.max.y - body.bounds.min.y;
         gfx.rect(-w / 2, -h / 2, w, h);
       }
-      gfx.fill({ color: 0x8e44ad });
-      gfx.stroke({ width: 2, color: 0xecf0f1 });
-      gfx.filters = [new GlowFilter({ distance: 12, outerStrength: 2.5, color: 0x9b59b6 })];
+      
+      if (label === 'moving_trap_telegraph') {
+        gfx.fill({ color: 0xff0000 }); // 激しく赤く発光
+        gfx.stroke({ width: 3, color: 0xffaaaa });
+        gfx.filters = [new GlowFilter({ distance: 15, outerStrength: 4, color: 0xff0000 })];
+      } else {
+        gfx.fill({ color: 0x8e44ad });
+        gfx.stroke({ width: 2, color: 0xecf0f1 });
+        gfx.filters = [new GlowFilter({ distance: 12, outerStrength: 2.5, color: 0x9b59b6 })];
+      }
     } else if (label === 'bumper') {
       gfx.circle(0, 0, body.circleRadius);
       gfx.fill({ color: 0xf39c12 });

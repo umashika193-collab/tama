@@ -136,7 +136,7 @@ export class StageManager {
       goal.plugin = { type: 'escaping_goal', speed: 4.5 };
       Composite.add(this.engine.world, goal);
     } else if (n === 9) {
-      // Stage 9: 複合（ピンボール＆壁）
+      // Stage 9: 複合（ピンボール＆壁） - トラップがフェイント移動する
       goal.position.y = 150;
       Composite.add(this.engine.world, [
         goal,
@@ -146,17 +146,28 @@ export class StageManager {
         Bodies.circle(w*0.25, h*0.6, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
         Bodies.circle(w*0.75, h*0.6, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
         Bodies.circle(w/2, h*0.75, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
-        Bodies.rectangle(w/2, h*0.45, w*0.6, 20, { isStatic: true, label: 'trap' })
+        Bodies.rectangle(w/2, h*0.45, w*0.4, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.05, originX: w/2, range: w*0.3 } })
       ]);
     } else if (n === 10) {
-      // Stage 10: 複合（フェイント壁＆逃げる穴）
-      goal.plugin = { type: 'escaping_goal', speed: 2.2 };
+      // Stage 10: IQ100 ビリヤードパズル（バンパー反射＋タイミング）
+      goal.position.x = w*0.8;
+      goal.position.y = h*0.15;
+      
       Composite.add(this.engine.world, [
         goal,
-        Bodies.rectangle(w/2, h*0.4, 20, h*0.4, { isStatic: true, label: 'trap' }),
-        Bodies.rectangle(w/2, h/2, w*0.4, 20, { isStatic: true, label: 'trap' }),
-        Bodies.rectangle(w/2, h*0.25, w*0.4, 20, { isStatic: true, label: 'moving_wall', plugin: { type: 'feint_wall', phase: 0, speed: 0.03, originX: w/2, range: w*0.3 } }),
-        Bodies.rectangle(w/2, h*0.75, w*0.4, 20, { isStatic: true, label: 'moving_wall', plugin: { type: 'feint_wall', phase: Math.PI, speed: 0.03, originX: w/2, range: w*0.3 } })
+        // ゴールを守るL字の壁（直接狙えないようにする）
+        Bodies.rectangle(w*0.8, h*0.25, w*0.4, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w*0.6, h*0.15, 20, h*0.3, { isStatic: true, label: 'wall' }),
+        
+        // 正解ルート用のバンパー（左下に当てて左上壁に反射させ右上へ）
+        Bodies.circle(w*0.2, h*0.7, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
+        
+        // タイミング要素（正解ルートの射線を塞ぐフェイント壁）
+        Bodies.rectangle(w/2, h/2, w*0.4, 20, { isStatic: true, label: 'moving_wall', plugin: { type: 'feint_wall', phase: 0, speed: 0.03, originX: w/2, range: w*0.4 } }),
+        
+        // 不正解の脳筋ショットを咎めるトラップ
+        Bodies.rectangle(w*0.8, h*0.8, w*0.4, 20, { isStatic: true, label: 'trap' }),
+        Bodies.rectangle(w*0.5, h*0.85, w*0.4, 20, { isStatic: true, label: 'trap' })
       ]);
     } else if (n === 11) {
       // Stage 11: 複合（風車＆トラップ＆逃げる穴）
@@ -240,24 +251,21 @@ export class StageManager {
         }
       } else if (plugin.type === 'windmill') {
         Body.setAngle(body, body.angle + plugin.speed);
-      } else if (plugin.type === 'feint_wall') {
+      } else if (plugin.type === 'feint_wall' || plugin.type === 'feint_trap') {
         plugin.phase += plugin.speed;
         
         // Custom Easing function for Feint (slow start, fast snap)
-        // sin(phase) is normal. Let's modify it to hold at edges and snap.
-        // Math.sin(phase)^3 gives a hold at 1 and -1 and snaps through 0.
         const normalizedPhase = Math.sin(plugin.phase);
         const feintOffset = Math.pow(normalizedPhase, 3) * plugin.range;
         
-        // Telegraphing (予備動作): if normalizedPhase is very close to 1 or -1 (wall is about to snap back), we can change its color or properties in the renderer via label!
-        // But for Matter.js, we just move it.
         Body.setPosition(body, { x: plugin.originX + feintOffset, y: body.position.y });
         
-        // Add a visual state for Telegraphing to be used in Renderer
-        if (Math.abs(normalizedPhase) > 0.95) {
-          body.label = 'moving_wall_telegraph';
+        // Telegraphing visual state
+        const isTelegraph = Math.abs(normalizedPhase) > 0.95;
+        if (plugin.type === 'feint_wall') {
+          body.label = isTelegraph ? 'moving_wall_telegraph' : 'moving_wall';
         } else {
-          body.label = 'moving_wall';
+          body.label = isTelegraph ? 'moving_trap_telegraph' : 'trap';
         }
       }
     }
