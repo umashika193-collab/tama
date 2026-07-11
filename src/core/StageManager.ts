@@ -117,11 +117,20 @@ export class StageManager {
       });
       Composite.add(this.engine.world, feintWall);
     } else if (n === 7) {
-      // Stage 7: 逃げる穴（Escaping Goal）の紹介
+      // Stage 7: 愛しの全画面風車（速度低下＆罠削減）
+      Composite.add(this.engine.world, goal);
+      const windmill = Bodies.rectangle(w/2, h/2, w*1.5, 20, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.04 } });
+      Composite.add(this.engine.world, [
+        windmill,
+        Bodies.circle(w*0.2, h*0.2, 40, { isStatic: true, label: 'trap' }),
+        Bodies.circle(w*0.8, h*0.8, 40, { isStatic: true, label: 'trap' }) // 対角線の2隅のみに削減
+      ]);
+    } else if (n === 8) {
+      // Stage 8: 逃げる穴（Escaping Goal）の紹介
       goal.plugin = { type: 'escaping_goal', speed: 1.5 };
       Composite.add(this.engine.world, goal);
-    } else if (n === 8) {
-      // Stage 8: 複合（ピンボール＆壁）
+    } else if (n === 9) {
+      // Stage 9: 複合（ピンボール＆壁）
       goal.position.y = 150;
       Composite.add(this.engine.world, [
         goal,
@@ -133,8 +142,8 @@ export class StageManager {
         Bodies.circle(w/2, h*0.75, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
         Bodies.rectangle(w/2, h*0.45, w*0.6, 20, { isStatic: true, label: 'trap' })
       ]);
-    } else if (n === 9) {
-      // Stage 9: 複合（フェイント壁＆逃げる穴）
+    } else if (n === 10) {
+      // Stage 10: 複合（フェイント壁＆逃げる穴）
       goal.plugin = { type: 'escaping_goal', speed: 2.2 };
       Composite.add(this.engine.world, [
         goal,
@@ -143,8 +152,8 @@ export class StageManager {
         Bodies.rectangle(w/2, h*0.25, w*0.4, 20, { isStatic: true, label: 'moving_wall', plugin: { type: 'feint_wall', phase: 0, speed: 0.03, originX: w/2, range: w*0.3 } }),
         Bodies.rectangle(w/2, h*0.75, w*0.4, 20, { isStatic: true, label: 'moving_wall', plugin: { type: 'feint_wall', phase: Math.PI, speed: 0.03, originX: w/2, range: w*0.3 } })
       ]);
-    } else if (n === 10) {
-      // Stage 10: 複合（風車＆トラップ＆逃げる穴）
+    } else if (n === 11) {
+      // Stage 11: 複合（風車＆トラップ＆逃げる穴）
       goal.plugin = { type: 'escaping_goal', speed: 1.5 };
       const windmill = Bodies.rectangle(w/2, h/2, w*1.5, 20, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.04 } });
       Composite.add(this.engine.world, [
