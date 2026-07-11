@@ -149,38 +149,30 @@ export class StageManager {
         Bodies.rectangle(w/2, h*0.45, w*0.4, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.05, originX: w/2, range: w*0.3 } })
       ]);
     } else if (n === 10) {
-      // Stage 10: 巨大十字風車ビリヤード（IQ100反射パズル・本気版）
+      // Stage 10: 巨大風車ビリヤード（適正バランス版）
       Composite.remove(this.engine.world, goal);
       const bigGoal = Bodies.circle(w * 0.85, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
       
-      // 巨大十字風車（厚さ80でトンネリング防止、4枚羽根で隙間を極限まで減らす）
-      const windmill1 = Bodies.rectangle(w/2, h/2, w*1.5, 80, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.045 } });
-      const windmill2 = Bodies.rectangle(w/2, h/2, 80, w*1.5, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.045 } });
-      // 初期角度を90度ずらして綺麗な十字にする
-      Body.setAngle(windmill2, Math.PI / 2);
+      // Stage 7と同じ「厚さ20の1本風車」に戻し、理不尽な運ゲー（鬼畜）を排除
+      // プレイヤーが「隙間」をしっかり狙えるようにする
+      const windmill = Bodies.rectangle(w/2, h/2, w*1.5, 20, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.04 } });
 
       Composite.add(this.engine.world, [
         bigGoal,
-        windmill1,
-        windmill2,
+        windmill,
         
         // ゴール（右上）を下と左から塞ぐ受け皿
         Bodies.rectangle(w * 0.85, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
         Bodies.rectangle(w * 0.85 - 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
         
-        // 反射バンパー（左上）
-        // プレイヤーは下から風車の隙間を縫って左上のバンパーに当てる必要がある。
-        // バンパーに当たると右に向かって反射し、右上のゴールへ飛んでいく（ここでも風車の隙間を縫う必要がある）
-        Bodies.circle(w * 0.15, h * 0.15, 45, { 
+        // 反射バンパー（左下寄りに配置）
+        // プレイヤーから当てやすく、かつ右上のゴールへ綺麗な斜め軌道を描く位置
+        Bodies.circle(w * 0.15, h * 0.6, 45, { 
           isStatic: true, 
           restitution: 1.5, 
           label: 'bumper' 
         }),
         
-        // バンパーの周りを少し囲って、適当な反射を防ぐ（下から綺麗に当てないと右へ飛ばないようにする）
-        Bodies.rectangle(w * 0.15 - 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
-        Bodies.rectangle(w * 0.15, h * 0.05, 140, 20, { isStatic: true, label: 'wall' }),
-
         // 画面下部の死のペナルティ
         Bodies.circle(w * 0.2, h * 0.9, 40, { isStatic: true, label: 'trap' }),
         Bodies.circle(w * 0.8, h * 0.9, 40, { isStatic: true, label: 'trap' }),
