@@ -149,26 +149,33 @@ export class StageManager {
         Bodies.rectangle(w/2, h*0.45, w*0.4, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.05, originX: w/2, range: w*0.3 } })
       ]);
     } else if (n === 10) {
-      // Stage 10: IQ100 ビリヤードパズル（バンパー反射＋タイミング）
-      goal.position.x = w*0.8;
-      goal.position.y = h*0.15;
+      // Stage 10: 直感とひらめきのパズル（IQ100）
+      // ゴールの視認性を高め、すり抜けバグを防止するために大きくする
+      Composite.remove(this.engine.world, goal);
+      const bigGoal = Bodies.circle(w * 0.2, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
       
       Composite.add(this.engine.world, [
-        goal,
-        // ゴールを下から守る壁（直接狙えないようにする）
-        // 左側の壁を無くし、左上方からの進入ルートを開放する
-        Bodies.rectangle(w*0.8, h*0.25, w*0.4, 20, { isStatic: true, label: 'wall' }),
+        bigGoal,
         
-        // 正解ルート用のバンパー（左下と中央左寄りに配置し、連続バウンドで右上へ飛ばす）
-        Bodies.circle(w*0.2, h*0.7, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
-        Bodies.circle(w*0.4, h*0.4, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
+        // ゴールの受け皿（ポチャッと入れるため）
+        Bodies.rectangle(w * 0.2, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w * 0.2 - 60, h * 0.15, 20, 180, { isStatic: true, label: 'wall' }),
         
-        // タイミング要素（正解ルートの射線を塞ぐフェイント壁）
-        Bodies.rectangle(w/2, h/2, w*0.4, 20, { isStatic: true, label: 'moving_wall', plugin: { type: 'feint_wall', phase: 0, speed: 0.03, originX: w/2, range: w*0.3 } }),
+        // 中央の巨大な斜め壁 ( / 向き )
+        // 直接左上のゴールを狙うと、この壁の右下側の面に当たって弾き返される
+        Bodies.rectangle(w / 2, h * 0.45, w * 0.7, 20, { 
+          isStatic: true, 
+          angle: -Math.PI / 4, 
+          label: 'wall' 
+        }),
         
-        // 不正解の脳筋ショットを咎めるトラップ
-        Bodies.rectangle(w*0.8, h*0.8, w*0.4, 20, { isStatic: true, label: 'trap' }),
-        Bodies.rectangle(w*0.5, h*0.85, w*0.4, 20, { isStatic: true, label: 'trap' })
+        // ひらめきの正解ルート用バンパー（右下）
+        // あえて右下に撃つことで左上に向かって強く跳ね返り、斜め壁の「裏側」を通ってゴールへ！
+        Bodies.circle(w * 0.85, h * 0.75, 45, { 
+          isStatic: true, 
+          restitution: 1.5, 
+          label: 'bumper' 
+        })
       ]);
     } else if (n === 11) {
       // Stage 11: 複合（風車＆トラップ＆逃げる穴）
