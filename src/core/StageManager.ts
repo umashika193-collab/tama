@@ -140,14 +140,13 @@ export class StageManager {
       goal.position.y = 150;
       Composite.add(this.engine.world, [
         goal,
-        Bodies.rectangle(w/2, 250, w*0.4, 20, { isStatic: true, label: 'wall' }),
-        Bodies.rectangle(w/2 - w*0.2, 220, 20, 80, { isStatic: true, label: 'wall' }),
-        Bodies.rectangle(w/2 + w*0.2, 220, 20, 80, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w/2, 250, w*0.5, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w/2 - w*0.25, 200, 20, 100, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w/2 + w*0.25, 200, 20, 100, { isStatic: true, label: 'wall' }),
         Bodies.circle(w*0.25, h*0.6, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
         Bodies.circle(w*0.75, h*0.6, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
         Bodies.circle(w/2, h*0.75, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
-        // トラップを小さく・遅くして突破可能に（クリア不能回避）
-        Bodies.rectangle(w/2, h*0.45, w*0.2, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.02, originX: w/2, range: w*0.25 } })
+        Bodies.rectangle(w/2, h*0.45, w*0.4, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.05, originX: w/2, range: w*0.3 } })
       ]);
     } else if (n === 10) {
       // Stage 10: IQ100 ビリヤードパズル（バンパー反射＋タイミング）
@@ -156,15 +155,16 @@ export class StageManager {
       
       Composite.add(this.engine.world, [
         goal,
-        // ゴールを守るL字の壁（直接狙えないようにする）
+        // ゴールを下から守る壁（直接狙えないようにする）
+        // 左側の壁を無くし、左上方からの進入ルートを開放する
         Bodies.rectangle(w*0.8, h*0.25, w*0.4, 20, { isStatic: true, label: 'wall' }),
-        Bodies.rectangle(w*0.6, h*0.15, 20, h*0.3, { isStatic: true, label: 'wall' }),
         
-        // 正解ルート用のバンパー（左下に当てて左上壁に反射させ右上へ）
+        // 正解ルート用のバンパー（左下と中央左寄りに配置し、連続バウンドで右上へ飛ばす）
         Bodies.circle(w*0.2, h*0.7, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
+        Bodies.circle(w*0.4, h*0.4, 30, { isStatic: true, restitution: 1.5, label: 'bumper' }),
         
         // タイミング要素（正解ルートの射線を塞ぐフェイント壁）
-        Bodies.rectangle(w/2, h/2, w*0.4, 20, { isStatic: true, label: 'moving_wall', plugin: { type: 'feint_wall', phase: 0, speed: 0.03, originX: w/2, range: w*0.4 } }),
+        Bodies.rectangle(w/2, h/2, w*0.4, 20, { isStatic: true, label: 'moving_wall', plugin: { type: 'feint_wall', phase: 0, speed: 0.03, originX: w/2, range: w*0.3 } }),
         
         // 不正解の脳筋ショットを咎めるトラップ
         Bodies.rectangle(w*0.8, h*0.8, w*0.4, 20, { isStatic: true, label: 'trap' }),
