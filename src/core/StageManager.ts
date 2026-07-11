@@ -81,39 +81,45 @@ export class StageManager {
       // Stage 1: 穴と玉のみ（ギミックなし）
       Composite.add(this.engine.world, goal);
     } else if (n === 2) {
-      // Stage 2: 壁（Wall）の紹介
+      // Stage 2: 5倍壁（圧倒的迂回）
       Composite.add(this.engine.world, goal);
       Composite.add(this.engine.world, [
-        Bodies.rectangle(w/2, h/2, w * 0.6, 20, { isStatic: true, label: 'wall' })
+        Bodies.rectangle(w/2, h/2, w * 0.8, 100, { isStatic: true, label: 'wall' })
       ]);
     } else if (n === 3) {
-      // Stage 3: トラップ（Trap）の紹介
+      // Stage 3: イライラ棒（絶対死守）
       Composite.add(this.engine.world, goal);
       Composite.add(this.engine.world, [
-        Bodies.rectangle(w/2, h/2, w * 0.6, 20, { isStatic: true, label: 'trap' })
+        Bodies.rectangle(w*0.4, h*0.3, w*0.8, 20, { isStatic: true, label: 'trap' }),
+        Bodies.rectangle(w*0.6, h*0.5, w*0.8, 20, { isStatic: true, label: 'trap' }),
+        Bodies.rectangle(w*0.4, h*0.7, w*0.8, 20, { isStatic: true, label: 'trap' })
       ]);
     } else if (n === 4) {
-      // Stage 4: バンパー（Bumper）の紹介
+      // Stage 4: 無駄バンパー（無限反射）
       Composite.add(this.engine.world, goal);
-      Composite.add(this.engine.world, [
-        Bodies.circle(w/2, h/2, 40, { isStatic: true, restitution: 1.5, label: 'bumper' })
-      ]);
+      const bumpers = [];
+      for(let i = 0; i < 5; i++) {
+        for(let j = 0; j < 3; j++) {
+          bumpers.push(Bodies.circle(w*0.2 + w*0.15*i, h*0.3 + h*0.15*j, 20, { isStatic: true, restitution: 1.5, label: 'bumper' }));
+        }
+      }
+      Composite.add(this.engine.world, bumpers);
     } else if (n === 5) {
-      // Stage 5: 風車（Windmill）の紹介
+      // Stage 5: 3倍速風車×3（見た目倒し）
       Composite.add(this.engine.world, goal);
-      const windmill = Bodies.rectangle(w/2, h/2, w*0.6, 20, { 
-        isStatic: true, 
-        label: 'wall', 
-        plugin: { type: 'windmill', speed: 0.03 } 
-      });
-      Composite.add(this.engine.world, windmill);
+      const windmills = [
+        Bodies.rectangle(w*0.25, h/2, w*0.2, 20, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.09 } }),
+        Bodies.rectangle(w*0.5, h/2, w*0.2, 20, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.09 } }),
+        Bodies.rectangle(w*0.75, h/2, w*0.2, 20, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.09 } })
+      ];
+      Composite.add(this.engine.world, windmills);
     } else if (n === 6) {
-      // Stage 6: 動く壁（Feint Wall）の紹介
+      // Stage 6: 理不尽フェイント壁（プロ向け初見殺し）
       Composite.add(this.engine.world, goal);
-      const feintWall = Bodies.rectangle(w/2, h/2, w*0.4, 20, { 
+      const feintWall = Bodies.rectangle(w/2, h/2, w*0.8, 20, { 
         isStatic: true, 
         label: 'moving_wall', 
-        plugin: { type: 'feint_wall', phase: 0, speed: 0.02, originX: w/2, range: w*0.3 } 
+        plugin: { type: 'feint_wall', phase: 0, speed: 0.04, originX: w/2, range: w*0.6 } 
       });
       Composite.add(this.engine.world, feintWall);
     } else if (n === 7) {
@@ -126,8 +132,8 @@ export class StageManager {
         Bodies.circle(w*0.8, h*0.8, 40, { isStatic: true, label: 'trap' }) // 対角線の2隅のみに削減
       ]);
     } else if (n === 8) {
-      // Stage 8: 逃げる穴（Escaping Goal）の紹介
-      goal.plugin = { type: 'escaping_goal', speed: 1.5 };
+      // Stage 8: 3倍速逃げる穴（爆速鬼ごっこ）
+      goal.plugin = { type: 'escaping_goal', speed: 4.5 };
       Composite.add(this.engine.world, goal);
     } else if (n === 9) {
       // Stage 9: 複合（ピンボール＆壁）
