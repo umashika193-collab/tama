@@ -199,6 +199,103 @@ export class StageManager {
         Bodies.circle(w*0.2, h*0.8, 40, { isStatic: true, label: 'trap' }),
         Bodies.circle(w*0.8, h*0.8, 40, { isStatic: true, label: 'trap' })
       ]);
+    } else if (n === 12) {
+      // Stage 12: イライラ往復迷路（精密制御とタイミング）
+      Composite.add(this.engine.world, goal);
+      Composite.add(this.engine.world, [
+        // 固定の境界壁（中央に狭い通路を設ける）
+        Bodies.rectangle(w * 0.25, h * 0.4, w * 0.4, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w * 0.75, h * 0.4, w * 0.4, 20, { isStatic: true, label: 'wall' }),
+        
+        // 往復するフェイント壁（障害物）
+        Bodies.rectangle(w/2, h * 0.55, w * 0.45, 20, { 
+          isStatic: true, 
+          label: 'moving_wall', 
+          plugin: { type: 'feint_wall', phase: 0, speed: 0.05, originX: w/2, range: w * 0.22 } 
+        }),
+        
+        // 往復するフェイントトラップ（ゴールの直前で揺れる）
+        Bodies.circle(w/2, h * 0.25, 30, { 
+          isStatic: true, 
+          label: 'trap', 
+          plugin: { type: 'feint_trap', phase: Math.PI, speed: 0.04, originX: w/2, range: w * 0.2 } 
+        }),
+        
+        // 下部隅にトラップ
+        Bodies.circle(w * 0.15, h * 0.7, 35, { isStatic: true, label: 'trap' }),
+        Bodies.circle(w * 0.85, h * 0.7, 35, { isStatic: true, label: 'trap' })
+      ]);
+    } else if (n === 13) {
+      // Stage 13: 4連ファンと中央バンパー（タイミングと反射の融合）
+      Composite.add(this.engine.world, goal);
+      
+      const fanSpeed = 0.05;
+      Composite.add(this.engine.world, [
+        // 4つの独立した中型風車
+        Bodies.rectangle(w * 0.25, h * 0.35, w * 0.35, 16, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: -fanSpeed } }),
+        Bodies.rectangle(w * 0.75, h * 0.35, w * 0.35, 16, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: fanSpeed } }),
+        Bodies.rectangle(w * 0.25, h * 0.65, w * 0.35, 16, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: fanSpeed } }),
+        Bodies.rectangle(w * 0.75, h * 0.65, w * 0.35, 16, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: -fanSpeed } }),
+        
+        // 中央のアシスト＆お邪魔バンパー
+        Bodies.circle(w / 2, h / 2, 35, { isStatic: true, restitution: 1.8, label: 'bumper' }),
+        
+        // 左右の隙間を塞ぐお邪魔トラップ（すり抜けは可能）
+        Bodies.circle(50, h/2, 30, { isStatic: true, label: 'trap' }),
+        Bodies.circle(w - 50, h/2, 30, { isStatic: true, label: 'trap' })
+      ]);
+    } else if (n === 14) {
+      // Stage 14: 往復ギロチンと逃げるゴール（スリルと追跡）
+      goal.plugin = { type: 'escaping_goal', speed: 2.2 };
+      Composite.add(this.engine.world, goal);
+      
+      Composite.add(this.engine.world, [
+        // 固定の遮り壁
+        Bodies.rectangle(w * 0.2, h * 0.7, w * 0.4, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w * 0.8, h * 0.7, w * 0.4, 20, { isStatic: true, label: 'wall' }),
+        
+        // 高速往復するギロチントラップ
+        Bodies.rectangle(w/2, h * 0.48, w * 0.35, 30, { 
+          isStatic: true, 
+          label: 'trap', 
+          plugin: { type: 'feint_trap', phase: 0, speed: 0.07, originX: w/2, range: w * 0.32 } 
+        }),
+        
+        // 上部を塞ぐ反射用バンパー（避けた後の軌道調整用）
+        Bodies.circle(w * 0.3, h * 0.25, 25, { isStatic: true, restitution: 1.5, label: 'bumper' }),
+        Bodies.circle(w * 0.7, h * 0.25, 25, { isStatic: true, restitution: 1.5, label: 'bumper' }),
+        
+        // リスキル防止の即死トラップ（下部隅）
+        Bodies.circle(w * 0.1, h * 0.9, 35, { isStatic: true, label: 'trap' }),
+        Bodies.circle(w * 0.9, h * 0.9, 35, { isStatic: true, label: 'trap' })
+      ]);
+    } else if (n === 15) {
+      // Stage 15: 最終試練「ブラックホール・ボルテックス」（超複合・集大成）
+      // 巨大風車の直撃を避けるため、スポーン位置を左下にずらす
+      Body.setPosition(player, { x: w * 0.2, y: h - 100 });
+
+      goal.plugin = { type: 'escaping_goal', speed: 3.2 };
+      Composite.add(this.engine.world, goal);
+
+      // 全画面巨大風車（w * 1.3）
+      const giantWindmill = Bodies.rectangle(w/2, h/2, w * 1.3, 18, { 
+        isStatic: true, 
+        label: 'wall', 
+        plugin: { type: 'windmill', speed: 0.045 } 
+      });
+
+      Composite.add(this.engine.world, [
+        giantWindmill,
+        
+        // 左右のバンパー（風車の力で弾かれたボールの安全なクッション 兼 反射アシスト）
+        Bodies.circle(w * 0.15, h * 0.7, 35, { isStatic: true, restitution: 1.6, label: 'bumper' }),
+        Bodies.circle(w * 0.85, h * 0.3, 35, { isStatic: true, restitution: 1.6, label: 'bumper' }),
+
+        // トラップ（激しく弾かれた時のペナルティとして、四隅と中央の一部に配置）
+        Bodies.circle(w * 0.1, h * 0.15, 35, { isStatic: true, label: 'trap' }), // 左上
+        Bodies.circle(w * 0.9, h * 0.85, 35, { isStatic: true, label: 'trap' }), // 右下
+        Bodies.circle(w * 0.5, h * 0.15, 30, { isStatic: true, label: 'trap' })  // 天井中央
+      ]);
     }
 
     this.onStageChange(this.currentStage);

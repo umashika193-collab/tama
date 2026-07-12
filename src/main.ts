@@ -50,6 +50,9 @@ const startButton = document.getElementById('startButton')!;
 const titleScreen = document.getElementById('titleScreen')!;
 const endingScreen = document.getElementById('endingScreen')!;
 const restartButton = document.getElementById('restartButton')!;
+const continueButton = document.getElementById('continueButton')!;
+const endingTitle = document.getElementById('endingTitle')!;
+const endingSub = document.getElementById('endingSub')!;
 const gameContainer = document.getElementById('gameContainer')!;
 const stageIndicator = document.getElementById('stageIndicator')!;
 const statusMessage = document.getElementById('statusMessage')!;
@@ -94,9 +97,20 @@ let isGameOver = false;
 
 stageManager.onClear = () => {
   soundManager.playClear();
-  if (stageManager.getCurrentStage() >= 10) {
+  const current = stageManager.getCurrentStage();
+
+  if (current === 10 || current >= 15) {
     endingScreen.style.display = 'block';
     restartButton.style.display = 'none';
+    continueButton.style.display = 'none';
+
+    if (current === 10) {
+      endingTitle.textContent = 'CONGRATULATIONS!';
+      endingSub.textContent = '全10ステージクリア！';
+    } else {
+      endingTitle.textContent = 'TRUE CONGRATULATIONS!';
+      endingSub.textContent = '真・全15ステージクリア！';
+    }
     
     // アニメーションをリセットして再生
     const roll = document.querySelector('.credits-roll') as HTMLElement;
@@ -108,6 +122,9 @@ stageManager.onClear = () => {
 
     setTimeout(() => {
       restartButton.style.display = 'block';
+      if (current === 10) {
+        continueButton.style.display = 'block';
+      }
     }, 12500);
   } else {
     statusMessage.textContent = 'STAGE CLEAR!';
@@ -115,10 +132,17 @@ stageManager.onClear = () => {
     statusMessage.style.display = 'block';
     setTimeout(() => {
       statusMessage.style.display = 'none';
-      stageManager.initStage(stageManager.getCurrentStage() + 1);
+      stageManager.initStage(current + 1);
     }, 2000);
   }
 };
+
+continueButton.addEventListener('click', () => {
+  endingScreen.style.display = 'none';
+  continueButton.style.display = 'none';
+  restartButton.style.display = 'none';
+  stageManager.initStage(11);
+});
 
 stageManager.onMiss = () => {
   soundManager.playMiss();
