@@ -158,7 +158,7 @@ stageManager.onMiss = () => {
 stageManager.onStageChange = (stage) => {
   stageIndicator.textContent = `STAGE ${stage}`;
   stageIndicator.style.display = 'block';
-  soundManager.playBGM(stage);
+  soundManager.playBGM(false); // プレイ中は常にプレイ用BGM(test1.mp3)を維持
 };
 
 
@@ -181,11 +181,11 @@ document.addEventListener('visibilitychange', async () => {
     await requestWakeLock();
   }
   
-  // Audio Context Pause/Resume
+  // 画面オフ時に音を一時停止、オン時に再開
   if (document.hidden) {
-    (soundManager as any).ctx?.suspend();
+    soundManager.pauseBGM();
   } else {
-    (soundManager as any).ctx?.resume();
+    soundManager.resumeBGM();
   }
 });
 
@@ -208,8 +208,9 @@ startButton.addEventListener('click', async () => {
   // 2. Wake Lock
   await requestWakeLock();
 
-  // 3. Audio Context
+  // 3. Audio Context & Play Gameplay BGM
   soundManager.init();
+  soundManager.playBGM(false);
 
   // 4. DeviceOrientation Unlocking
   if (typeof (DeviceOrientationEvent as any) !== 'undefined' && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
@@ -321,3 +322,15 @@ if (!isStandalone) {
     });
   }
 }
+
+// 初回タップ/クリック時にオーディオとタイトルBGMをアンロックして再生
+const unlockAudio = () => {
+  soundManager.init();
+  if (titleScreen.style.display !== 'none') {
+    soundManager.playBGM(true); // タイトル画面では test2.mp3 を再生
+  }
+  window.removeEventListener('click', unlockAudio);
+  window.removeEventListener('touchstart', unlockAudio);
+};
+window.addEventListener('click', unlockAudio);
+window.addEventListener('touchstart', unlockAudio);

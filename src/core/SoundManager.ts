@@ -59,16 +59,15 @@ export class SoundManager {
   }
 
   // ==== BGM（MP3再生） ====
-  public playBGM(stage: number) {
-    // 1〜5ステージは test1.mp3、6ステージ以降（15まで）は test2.mp3 を再生
-    const isTest1 = stage <= 5;
-    const filename = isTest1 ? 'test1.mp3' : 'test2.mp3';
+  public playBGM(isTitle: boolean) {
+    // タイトル画面は test2.mp3、プレイ中（全ステージ）は test1.mp3 を再生
+    const filename = isTitle ? 'test2.mp3' : 'test1.mp3';
     
     // ViteのBASE_URL（/tama/等）を考慮したパスの生成
     const base = (import.meta as any).env?.BASE_URL || '/';
     const bgmPath = `${base}${filename}`;
 
-    // すでに同じBGMがロードされ、再生中の場合はそのまま維持
+    // すでに同じBGMがロードされ、再生中の場合は何もしない（一時停止から再開含む）
     if (this.currentBgmPath === bgmPath && this.bgmAudio) {
       if (this.bgmAudio.paused) {
         this.bgmAudio.play().catch(() => {});
@@ -82,7 +81,7 @@ export class SoundManager {
     this.currentBgmPath = bgmPath;
     this.bgmAudio = new Audio(bgmPath);
     this.bgmAudio.loop = true;
-    this.bgmAudio.volume = 0.20; // プレイの邪魔にならない音量（20%）
+    this.bgmAudio.volume = 0.20; // 適切な音量（20%）
 
     this.bgmAudio.play().catch((err) => {
       console.warn('BGM play deferred until user interaction:', err);
@@ -97,5 +96,25 @@ export class SoundManager {
       this.bgmAudio = null;
     }
     this.currentBgmPath = null;
+  }
+
+  // 画面が非表示（バックグラウンド）になった際に音を停止する
+  public pauseBGM() {
+    if (this.bgmAudio && !this.bgmAudio.paused) {
+      this.bgmAudio.pause();
+    }
+    if (this.ctx && this.ctx.state === 'running') {
+      this.ctx.suspend();
+    }
+  }
+
+  // 画面が表示（アクティブ）に戻った際に音を再開する
+  public resumeBGM() {
+    if (this.bgmAudio && this.bgmAudio.paused) {
+      this.bgmAudio.play().catch(() => {});
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
   }
 }
