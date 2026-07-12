@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import { Engine, Composite, Events } from 'matter-js';
-import { InputManager } from './InputManager';
 
 interface Particle {
   x: number;
@@ -15,7 +14,6 @@ interface Particle {
 export class Renderer {
   private app: PIXI.Application;
   private engine: Engine;
-  private inputManager: InputManager;
   private graphicsMap: Map<number, PIXI.Graphics>;
   
   // エフェクト管理
@@ -23,10 +21,9 @@ export class Renderer {
   private trailParticles: Particle[] = [];
   private sparkParticles: Particle[] = [];
 
-  constructor(app: PIXI.Application, engine: Engine, inputManager: InputManager) {
+  constructor(app: PIXI.Application, engine: Engine) {
     this.app = app;
     this.engine = engine;
-    this.inputManager = inputManager;
     this.graphicsMap = new Map();
 
     // エフェクト描画用のGraphicsを作成し、ステージの最前面に追加
@@ -163,51 +160,6 @@ export class Renderer {
       }
       this.particleGraphics.circle(p.x, p.y, p.size);
       this.particleGraphics.fill({ color: p.color, alpha: p.alpha });
-    }
-
-    // 4. 重力インジケーターの描画
-    if (player && this.inputManager) {
-      const gx = this.engine.gravity.x;
-      const gy = this.engine.gravity.y;
-      const gStrength = Math.sqrt(gx * gx + gy * gy);
-
-      // 一定以上の重力がかかっている場合
-      if (gStrength > 0.05) {
-        const startX = player.position.x;
-        const startY = player.position.y;
-        const angle = Math.atan2(gy, gx);
-
-        // 重力の強さに応じたインジケーターの長さ（最大60px）
-        const maxLength = 60;
-        const arrowLength = player.circleRadius + (gStrength / 1.0) * maxLength;
-        const endX = startX + Math.cos(angle) * arrowLength;
-        const endY = startY + Math.sin(angle) * arrowLength;
-
-        // ガイドライン（薄い同心円）
-        this.particleGraphics.circle(startX, startY, player.circleRadius + maxLength);
-        this.particleGraphics.stroke({ width: 1, color: 0xffffff, alpha: 0.08 });
-
-        // 矢印の軸（ネオンピンク）
-        // 外側のぼんやりした光
-        this.particleGraphics.moveTo(startX, startY);
-        this.particleGraphics.lineTo(endX, endY);
-        this.particleGraphics.stroke({ width: 7, color: 0xe74c3c, alpha: 0.25 });
-        // 内側の鋭い光
-        this.particleGraphics.moveTo(startX, startY);
-        this.particleGraphics.lineTo(endX, endY);
-        this.particleGraphics.stroke({ width: 2, color: 0xff8888, alpha: 0.95 });
-
-        // 矢印の頭部
-        const headLength = 9;
-        const headAngle1 = angle + Math.PI * 0.8;
-        const headAngle2 = angle - Math.PI * 0.8;
-
-        this.particleGraphics.moveTo(endX, endY);
-        this.particleGraphics.lineTo(endX + Math.cos(headAngle1) * headLength, endY + Math.sin(headAngle1) * headLength);
-        this.particleGraphics.lineTo(endX + Math.cos(headAngle2) * headLength, endY + Math.sin(headAngle2) * headLength);
-        this.particleGraphics.closePath();
-        this.particleGraphics.fill({ color: 0xff8888 });
-      }
     }
   }
 

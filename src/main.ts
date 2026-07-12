@@ -84,7 +84,7 @@ const runner = Runner.create();
 
 const soundManager = new SoundManager();
 const inputManager = new InputManager(engine);
-const renderer = new Renderer(app, engine, inputManager);
+const renderer = new Renderer(app, engine);
 const stageManager = new StageManager(engine);
 const urlParams = new URLSearchParams(window.location.search);
 const startStageParam = urlParams.get('stage');
