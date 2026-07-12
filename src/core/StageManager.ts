@@ -150,20 +150,23 @@ export class StageManager {
         Bodies.rectangle(w/2, h*0.45, w*0.4, 20, { isStatic: true, label: 'trap', plugin: { type: 'feint_trap', phase: 0, speed: 0.05, originX: w/2, range: w*0.3 } })
       ]);
     } else if (n === 10) {
-      // Stage 10: 直感ビリヤードパズル ＋ 風車先輩の帰還（チューナー対応）
+      // Stage 10: 巨大風車 × 反射パズル（チュートリアル最終試練）
+      // 巨大風車との衝突を避けるため、プレイヤーの初期位置を右下にずらす
+      Body.setPosition(player, { x: w * 0.85, y: h - 100 });
+
       Composite.remove(this.engine.world, goal);
       const bigGoal = Bodies.circle(w * 0.15, h * 0.15, 45, { isStatic: true, isSensor: true, label: 'goal' });
 
-      // 風車先輩の復帰（パラメータ連動）
-      const windmill = Bodies.rectangle(w/2, h/2, w * GAME_CONFIG.stage10WindmillWidthRatio, 20, { 
+      // ステージ8の要素を融合：全画面を覆う巨大風車（w * 1.2）
+      const giantWindmill = Bodies.rectangle(w/2, h/2, w * 1.2, 20, { 
         isStatic: true, 
         label: 'wall', 
-        plugin: { type: 'windmill', speed: GAME_CONFIG.stage10WindmillSpeed } 
+        plugin: { type: 'windmill', speed: 0.04 } 
       });
 
       Composite.add(this.engine.world, [
         bigGoal,
-        windmill,
+        giantWindmill,
         
         // ゴール（左上）の受け皿
         Bodies.rectangle(w * 0.15, h * 0.25, 140, 20, { isStatic: true, label: 'wall' }),
@@ -179,12 +182,10 @@ export class StageManager {
           label: 'bumper' 
         }),
 
-        // 適度な即死トラップ（リスキルしない安全な距離で、ミスを咎める）
-        // 天井中央（強すぎた時のペナルティ）
-        Bodies.circle(w * 0.5, h * 0.05, 40, { isStatic: true, label: 'trap' }),
-        // 左下隅と右下隅（変な角度で弾かれた時のペナルティ）
-        Bodies.circle(w * 0.1, h * 0.9, 40, { isStatic: true, label: 'trap' }),
-        Bodies.circle(w * 0.9, h * 0.9, 40, { isStatic: true, label: 'trap' })
+        // 障害物とトラップの配置（風車で弾かれた時の緊張感を演出）
+        Bodies.circle(w * 0.1, h * 0.9, 45, { isStatic: true, label: 'trap' }), // 左下即死
+        Bodies.circle(w * 0.5, h * 0.05, 45, { isStatic: true, label: 'trap' }), // 天井中央
+        Bodies.circle(w * 0.15, h * 0.5, 30, { isStatic: true, label: 'trap' })  // ゴール下へのアプローチ防止用邪魔トラップ
       ]);
     } else if (n === 11) {
       // Stage 11: 複合（風車＆トラップ＆逃げる穴）

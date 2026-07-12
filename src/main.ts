@@ -88,7 +88,7 @@ const renderer = new Renderer(app, engine, inputManager);
 const stageManager = new StageManager(engine);
 const urlParams = new URLSearchParams(window.location.search);
 const startStageParam = urlParams.get('stage');
-let currentStage = startStageParam ? parseInt(startStageParam, 10) : 1; // テストモードオフ（ステージ1から開始）
+let currentStage = startStageParam ? parseInt(startStageParam, 10) : 10; // テストモードオン（ステージ10から開始）
 const initialStage = currentStage;
 let isGameOver = false;
 
