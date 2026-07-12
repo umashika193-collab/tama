@@ -84,7 +84,7 @@ const runner = Runner.create();
 
 const soundManager = new SoundManager();
 const inputManager = new InputManager(engine);
-const renderer = new Renderer(app, engine);
+const renderer = new Renderer(app, engine, inputManager);
 const stageManager = new StageManager(engine);
 const urlParams = new URLSearchParams(window.location.search);
 const startStageParam = urlParams.get('stage');
@@ -203,6 +203,7 @@ startButton.addEventListener('click', async () => {
     inputManager.enableGyro();
   }
 
+  inputManager.enableDragInput(app.canvas);
   inputManager.enablePCInput();
 
   // Start Physics and Game Loop
