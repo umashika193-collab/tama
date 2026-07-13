@@ -57,6 +57,8 @@ const gameContainer = document.getElementById('gameContainer')!;
 const stageIndicator = document.getElementById('stageIndicator')!;
 const statusMessage = document.getElementById('statusMessage')!;
 const versionDisplay = document.getElementById('versionDisplay')!;
+const calibrateButton = document.getElementById('calibrateButton')!;
+
 
 if (versionDisplay && typeof __APP_VERSION__ !== 'undefined') {
   versionDisplay.textContent = __APP_VERSION__;
@@ -94,6 +96,7 @@ const startStageParam = urlParams.get('stage');
 let currentStage = startStageParam ? parseInt(startStageParam, 10) : 1; // テストモードオフ（ステージ1から開始）
 const initialStage = currentStage;
 let isGameOver = false;
+let hasGyro = false; // ジャイロが有効かどうかのフラグ
 
 stageManager.onClear = () => {
   soundManager.playClear();
@@ -103,6 +106,8 @@ stageManager.onClear = () => {
     endingScreen.style.display = 'block';
     restartButton.style.display = 'none';
     continueButton.style.display = 'none';
+    calibrateButton.style.display = 'none'; // エンディング画面では非表示
+
 
     if (current === 10) {
       endingTitle.textContent = 'CONGRATULATIONS!';
@@ -141,6 +146,7 @@ continueButton.addEventListener('click', () => {
   endingScreen.style.display = 'none';
   continueButton.style.display = 'none';
   restartButton.style.display = 'none';
+  if (hasGyro) calibrateButton.style.display = 'block';
   stageManager.initStage(11);
 });
 
@@ -218,6 +224,8 @@ startButton.addEventListener('click', async () => {
       const permissionState = await (DeviceOrientationEvent as any).requestPermission();
       if (permissionState === 'granted') {
         inputManager.enableGyro();
+        hasGyro = true;
+        calibrateButton.style.display = 'block';
       } else {
         alert('ジャイロセンサーが許可されませんでした。PC操作モードを使用します。');
       }
@@ -225,7 +233,10 @@ startButton.addEventListener('click', async () => {
       console.error(error);
     }
   } else {
+    // デスクトップブラウザ等でもデバイスが対応していれば有効化（またはデバッグ目的で常にボタン表示）
     inputManager.enableGyro();
+    hasGyro = true;
+    calibrateButton.style.display = 'block';
   }
 
   inputManager.enableDragInput(app.canvas);
@@ -245,6 +256,7 @@ startButton.addEventListener('click', async () => {
 
 restartButton.addEventListener('click', () => {
   endingScreen.style.display = 'none';
+  if (hasGyro) calibrateButton.style.display = 'block';
   stageManager.initStage(initialStage);
 });
 
@@ -255,6 +267,25 @@ window.addEventListener('restartStageEvent', () => {
 });
 
 // ==== PWA Installation Logic ====
+// キャリブレーションボタンのイベントリスナー設定
+calibrateButton.addEventListener('click', () => {
+  inputManager.calibrateGyro();
+  
+  // 視覚的フィードバック（ネオンカラーを一時的に緑に変更）
+  const origText = calibrateButton.textContent;
+  calibrateButton.textContent = 'リセット完了！';
+  const originalStyleColor = calibrateButton.style.color;
+  const originalStyleBorderColor = calibrateButton.style.borderColor;
+  (calibrateButton as HTMLElement).style.color = '#2ecc71';
+  (calibrateButton as HTMLElement).style.borderColor = '#2ecc71';
+  
+  setTimeout(() => {
+    calibrateButton.textContent = origText;
+    (calibrateButton as HTMLElement).style.color = originalStyleColor;
+    (calibrateButton as HTMLElement).style.borderColor = originalStyleBorderColor;
+  }, 1000);
+});
+
 const installContainer = document.getElementById('installContainer')!;
 const installButton = document.getElementById('installButton')!;
 let deferredPrompt: any = null;

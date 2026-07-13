@@ -4,6 +4,12 @@ export class InputManager {
   private engine: Engine;
   private maxGravity = 1.0;
   private gyroEnabled = false;
+  
+  // Gyro Calibration Offsets
+  private lastRawBeta = 0;
+  private lastRawGamma = 0;
+  private offsetBeta = 0;
+  private offsetGamma = 0;
 
   // ドラッグ操作の状態を公開（Rendererでのインジケーター描画用）
   public isDragging = false;
@@ -22,18 +28,31 @@ export class InputManager {
       // ドラッグ操作中はジャイロによる重力更新をスキップして競合を防ぐ
       if (this.isDragging) return;
 
-      // 端末が水平(0,0)の時を基準とする
       const beta = e.beta || 0; // x軸回転（前後）: -180 ~ 180
       const gamma = e.gamma || 0; // y軸回転（左右）: -90 ~ 90
       
-      // 縦画面（ポートレート）前提
-      const gx = Math.max(-this.maxGravity, Math.min(this.maxGravity, gamma / 45));
-      const gy = Math.max(-this.maxGravity, Math.min(this.maxGravity, beta / 45));
+      this.lastRawBeta = beta;
+      this.lastRawGamma = gamma;
+
+      // キャリブレーションのオフセット値を引く
+      const adjustedBeta = beta - this.offsetBeta;
+      const adjustedGamma = gamma - this.offsetGamma;
+
+      // 縦画面（ポートレート）前提で、感度調整（45度傾けた時に最大重力）
+      const gx = Math.max(-this.maxGravity, Math.min(this.maxGravity, adjustedGamma / 45));
+      const gy = Math.max(-this.maxGravity, Math.min(this.maxGravity, adjustedBeta / 45));
       
       this.engine.gravity.x = gx;
       this.engine.gravity.y = gy;
     });
   }
+
+  public calibrateGyro() {
+    this.offsetBeta = this.lastRawBeta;
+    this.offsetGamma = this.lastRawGamma;
+    console.log(`Gyro calibrated. Offsets set to: beta=${this.offsetBeta}, gamma=${this.offsetGamma}`);
+  }
+
 
   // ドラッグ操作を有効化する
   public enableDragInput(canvas: HTMLCanvasElement) {

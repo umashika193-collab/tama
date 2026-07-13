@@ -254,3 +254,29 @@ body, html {
     top: 60px !important; /* Avoid title/status overlaps */
   }
 }
+
+#calibrateButton {
+  position: absolute;
+  top: 65px;
+  left: 20px;
+  pointer-events: auto;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: rgba(52, 152, 219, 0.2);
+  color: #3498db;
+  border: 2px solid #3498db;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
+  z-index: 1000;
+}
+
+#calibrateButton:active {
+  transform: scale(0.95);
+  background-color: rgba(52, 152, 219, 0.6);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.8);
+}
+
