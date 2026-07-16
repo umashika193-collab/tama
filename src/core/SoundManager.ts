@@ -58,10 +58,15 @@ export class SoundManager {
     osc.stop(this.ctx.currentTime + duration);
   }
 
-  // ==== BGM（MP3再生） ====
-  public playBGM(isTitle: boolean) {
-    // タイトル画面は test2.mp3、プレイ中（全ステージ）は test1.mp3 を再生
-    const filename = isTitle ? 'test2.mp3' : 'test1.mp3';
+  // ==== BGM（MP3/OGG再生） ====
+  public playBGM(isTitle: boolean, stage?: number) {
+    // タイトル画面は test2.mp3、ステージ10〜20は 10-20.ogg、その他は test1.mp3 を再生
+    let filename = 'test1.mp3';
+    if (isTitle) {
+      filename = 'test2.mp3';
+    } else if (stage !== undefined && stage >= 11 && stage <= 20) {
+      filename = '10-20.ogg';
+    }
     
     // ViteのBASE_URL（/tama/等）を考慮したパスの生成
     const base = (import.meta as any).env?.BASE_URL || '/';

@@ -165,10 +165,6 @@ export class Renderer {
           color = 0x95a5a6; // メタルシルバー
           trailSize = player.circleRadius * 0.45;
           trailAlpha = 0.4;
-        } else if (player.plugin.state === 'rubber') {
-          color = 0xff007f; // ゴムピンク
-          trailSize = player.circleRadius * 0.85;
-          trailAlpha = 0.6;
         }
 
         this.trailParticles.push({
@@ -252,8 +248,8 @@ export class Renderer {
     this.createSparks(toX, toY, 0xe67e22, 10);
   }
 
-  private triggerItemCollectEffects(x: number, y: number, type: 'metal' | 'rubber') {
-    const color = type === 'metal' ? 0xbdc3c7 : 0xff007f;
+  private triggerItemCollectEffects(x: number, y: number, type: 'metal') {
+    const color = 0xbdc3c7;
     this.warpRings.push({
       x: x,
       y: y,
@@ -281,10 +277,6 @@ export class Renderer {
         glowColor = 0x95a5a6; // メタルシルバー
         baseColor = 0x7f8c8d;
         highlightColor = 0xecf0f1;
-      } else if (state === 'rubber') {
-        glowColor = 0xff007f; // ゴムピンク
-        baseColor = 0xd63031;
-        highlightColor = 0xffaacc;
       }
 
       // 疑似ネオン外光
@@ -455,8 +447,7 @@ export class Renderer {
         gfx.stroke({ width: 2.5, color: glow });
       }
       
-    } else if (label.startsWith('item_metal') || label.startsWith('item_rubber')) {
-      const isMetal = label.startsWith('item_metal');
+    } else if (label.startsWith('item_metal')) {
       const isActive = body.plugin?.active;
 
       if (!isActive) {
@@ -464,8 +455,8 @@ export class Renderer {
         gfx.alpha = 0;
       } else {
         gfx.alpha = 1;
-        const color = isMetal ? 0xbdc3c7 : 0xff007f;
-        const glow = isMetal ? 0x7f8c8d : 0xff79c6;
+        const color = 0xbdc3c7;
+        const glow = 0x7f8c8d;
         const r = body.circleRadius || 18;
         
         // ダイヤ型外光
@@ -482,12 +473,12 @@ export class Renderer {
         gfx.lineTo(0, r);
         gfx.lineTo(-r, 0);
         gfx.closePath();
-        gfx.fill({ color: isMetal ? 0x34495e : 0x800040 });
+        gfx.fill({ color: 0x34495e });
         gfx.stroke({ width: 2.5, color: color });
         
         // コア
         gfx.circle(0, 0, r * 0.45);
-        gfx.fill({ color: isMetal ? 0xecf0f1 : 0xffffff });
+        gfx.fill({ color: 0xecf0f1 });
       }
     }
 

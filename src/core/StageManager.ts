@@ -89,16 +89,15 @@ export class StageManager {
                 };
               }
             }
-          } else if (otherLabel === 'item_metal' || otherLabel === 'item_rubber') {
+          } else if (otherLabel === 'item_metal') {
             // 素材変更アイテム
             const itemPlugin = otherBody.plugin;
             if (itemPlugin && itemPlugin.active) {
               itemPlugin.active = false;
               itemPlugin.collectedFrame = 0;
               
-              const isMetal = otherLabel === 'item_metal';
-              const stateType = isMetal ? 'metal' : 'rubber';
-              const stateConfig = isMetal ? GAME_CONFIG.ballMetal : GAME_CONFIG.ballRubber;
+              const stateType = 'metal';
+              const stateConfig = GAME_CONFIG.ballMetal;
               
               playerBody.plugin = playerBody.plugin || {};
               playerBody.plugin.state = stateType;
@@ -173,14 +172,28 @@ export class StageManager {
         Bodies.rectangle(w*0.4, h*0.7, w*0.8, 20, { isStatic: true, label: 'trap' })
       ]);
     } else if (n === 4) {
-      // Stage 4: 無駄バンパー（無限反射）
+      // Stage 4: イライラバンパー（外枠回避防止・ジグザグ通路）
       Composite.add(this.engine.world, goal);
       const bumpers = [];
-      for(let i = 0; i < 5; i++) {
-        for(let j = 0; j < 3; j++) {
-          bumpers.push(Bodies.circle(w*0.2 + w*0.15*i, h*0.3 + h*0.15*j, 20, { isStatic: true, restitution: 1.5, label: 'bumper' }));
-        }
+      const br = 16; // スマホでの回避しやすさを考慮して少し小さく (20 -> 16)
+      const spacing = br * 2.5; // バンパー同士の間隔も少し開けて抜けやすくする
+      
+      // 1段目: 左側に広めの隙間 (0.25 -> 0.35)
+      for (let x = w * 0.35; x <= w + br; x += spacing) {
+        bumpers.push(Bodies.circle(x, h * 0.3, br, { isStatic: true, restitution: 1.5, label: 'bumper' }));
       }
+      // 2段目: 右側に広めの隙間 (0.75 -> 0.65)
+      for (let x = -br; x <= w * 0.65; x += spacing) {
+        bumpers.push(Bodies.circle(x, h * 0.5, br, { isStatic: true, restitution: 1.5, label: 'bumper' }));
+      }
+      // 3段目: 中央に広めの隙間（両端にバンパー）
+      for (let x = -br; x <= w * 0.25; x += spacing) {
+        bumpers.push(Bodies.circle(x, h * 0.7, br, { isStatic: true, restitution: 1.5, label: 'bumper' }));
+      }
+      for (let x = w * 0.75; x <= w + br; x += spacing) {
+        bumpers.push(Bodies.circle(x, h * 0.7, br, { isStatic: true, restitution: 1.5, label: 'bumper' }));
+      }
+
       Composite.add(this.engine.world, bumpers);
     } else if (n === 5) {
       // Stage 5: 3倍速風車×3（見た目倒し）
@@ -325,25 +338,30 @@ export class StageManager {
         Bodies.circle(w / 2, 220, 25, { isStatic: true, restitution: 1.2, label: 'bumper' })
       ]);
     } else if (n === 14) {
-      // Stage 14: 「スーパーゴム・トリックショット」（大バウンドジャンプ）
+      // Stage 14: 「ポータル・トリックショット」（精密反射・高難易度）
       Composite.add(this.engine.world, goal);
       
-      // 巨大仕切り壁（飛び越える必要がある）
       Composite.add(this.engine.world, [
-        Bodies.rectangle(w * 0.5, h * 0.55, w * 0.75, 20, { isStatic: true, label: 'wall' }),
+        // 画面中央を完全に分断する仕切り壁
+        Bodies.rectangle(w / 2, h * 0.5, w, 20, { isStatic: true, label: 'wall' }),
         
-        // ゴム化アイテム（スタートエリア内）
-        Bodies.circle(w * 0.2, h * 0.8, 18, { isStatic: true, isSensor: true, label: 'item_rubber', plugin: { active: true } }),
+        // ポータルA（ワープ入口：下部左側、トラップで厳重にガード）
+        Bodies.circle(w * 0.15, h * 0.8, 20, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P14A', partnerId: 'P14B' } }),
         
-        // 飛び越えをアシストする高反発バンパー（壁の底や横）
-        Bodies.circle(w * 0.85, h * 0.75, 35, { isStatic: true, restitution: 1.9, label: 'bumper' }),
-        Bodies.circle(w * 0.15, h * 0.45, 30, { isStatic: true, restitution: 1.9, label: 'bumper' }),
+        // ポータルAを守るトラップ群（非常に狭い射出角度しか許容しない）
+        Bodies.circle(w * 0.15, h * 0.65, 30, { isStatic: true, label: 'trap' }), // 上ガード
+        Bodies.circle(w * 0.35, h * 0.8, 30, { isStatic: true, label: 'trap' }),  // 右ガード
+        Bodies.rectangle(w * 0.25, h * 0.92, 100, 20, { isStatic: true, label: 'trap' }), // 斜め下ガード
         
-        // 飛び越えた先のトラップ（精密に着地しないと即死）
-        Bodies.circle(w * 0.5, h * 0.35, 35, { isStatic: true, label: 'trap' }),
+        // ポータルB（ワープ出口：上部左側）
+        Bodies.circle(w * 0.15, h * 0.25, 20, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P14B', partnerId: 'P14A' } }),
         
-        // リスキル防止の即死トラップ（下部隅）
-        Bodies.circle(w * 0.1, h * 0.95, 30, { isStatic: true, label: 'trap' })
+        // トリックショットを誘発する強力バンパー（右下）
+        Bodies.circle(w * 0.85, h * 0.8, 40, { isStatic: true, restitution: 2.0, label: 'bumper' }),
+        
+        // 上部エリアのお邪魔トラップ（ワープ後の慣性をコントロールして精密に避ける必要がある）
+        Bodies.circle(w * 0.5, h * 0.25, 35, { isStatic: true, label: 'trap' }),
+        Bodies.circle(w * 0.85, h * 0.25, 35, { isStatic: true, label: 'trap' })
       ]);
     } else if (n === 15) {
       // Stage 15: 最終試練「クロニクル・オブ・グラビティ」（超複合・集大成パズル）
@@ -360,10 +378,15 @@ export class StageManager {
         Bodies.rectangle(w * 0.4, h * 0.6, 20, h * 0.8, { isStatic: true, label: 'wall' }), // 縦壁
         Bodies.rectangle(w * 0.7, h * 0.4, w * 0.6, 20, { isStatic: true, label: 'wall' }), // 横壁
         
-        // 1. エリア1（左下）：ゴムアイテム
-        Bodies.circle(w * 0.15, h * 0.75, 18, { isStatic: true, isSensor: true, label: 'item_rubber', plugin: { active: true } }),
+        // 1. エリア1（左下）：ゴムアイテムを廃止し、壁越え用の高反発バンパーを配置
+        // バンパー周辺や壁上部、奈落にトラップを置き、無計画なバウンドは即死する構成
+        Bodies.circle(w * 0.15, h * 0.8, 25, { isStatic: true, restitution: 1.8, label: 'bumper' }),
+        Bodies.circle(w * 0.4, h * 0.18, 25, { isStatic: true, label: 'trap' }), // 縦壁頂上のトラップ
+        Bodies.circle(w * 0.15, h * 0.95, 20, { isStatic: true, label: 'trap' }), // バンパー直下
         
         // 2. エリア2（右下）：スイッチとアシストバンパー
+        // 飛び越え時の着地地点にお邪魔トラップを配置し、着地コントロールを難化
+        Bodies.circle(w * 0.6, h * 0.7, 30, { isStatic: true, label: 'trap' }),
         Bodies.circle(w * 0.85, h * 0.8, 20, { isStatic: true, isSensor: true, label: 'switch', plugin: { gateId, activated: false } }),
         Bodies.circle(w * 0.85, h * 0.6, 30, { isStatic: true, restitution: 1.8, label: 'bumper' }),
         
@@ -383,6 +406,184 @@ export class StageManager {
         
         // 右隅の即死トラップ（逃げるゴールとのせめぎ合い）
         Bodies.circle(w * 0.95, h * 0.1, 30, { isStatic: true, label: 'trap' })
+      ]);
+    } else if (n === 16) {
+      // Stage 16: 「メタル・ウェーブ」（強風と時間制限・高難易度）
+      Composite.add(this.engine.world, goal);
+      
+      Composite.add(this.engine.world, [
+        // メタル化アイテム（スタートエリア）
+        Bodies.circle(w * 0.5, h * 0.8, 18, { isStatic: true, isSensor: true, label: 'item_metal', plugin: { active: true } }),
+        
+        // 吹き飛ばす強風車（メタル化しないとトラップへ直行）
+        Bodies.rectangle(w * 0.3, h * 0.55, w * 0.45, 18, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.09 } }),
+        Bodies.rectangle(w * 0.7, h * 0.35, w * 0.45, 18, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: -0.09 } }),
+        
+        // 左右壁際の即死トラップ帯
+        Bodies.rectangle(w * 0.05, h * 0.45, 60, 180, { isStatic: true, label: 'trap' }),
+        Bodies.rectangle(w * 0.95, h * 0.45, 60, 180, { isStatic: true, label: 'trap' }),
+        
+        // 中央仕切り壁（風の逃げ道を制限）
+        Bodies.rectangle(w * 0.5, h * 0.45, 40, 120, { isStatic: true, label: 'wall' }),
+        
+        // ゴール直前のトラップ
+        Bodies.circle(w * 0.5, 200, 30, { isStatic: true, label: 'trap' })
+      ]);
+    } else if (n === 17) {
+      // Stage 17: 「ポータル・スイッチ・チェイン」（精密順序パズル・高難易度）
+      Composite.add(this.engine.world, goal);
+      
+      const gateA = 'gate17A';
+      const gateB = 'gate17B';
+      const gateC = 'gate17C';
+      
+      Composite.add(this.engine.world, [
+        // 画面を4つの部屋に分ける十字仕切り壁
+        Bodies.rectangle(w / 2, h * 0.5, w, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w * 0.5, h / 2, 20, h, { isStatic: true, label: 'wall' }),
+        
+        // --- エリア1（左下：スタート） ---
+        // エリア2（右下）へのポータルA（ゲートで封鎖）
+        Bodies.circle(w * 0.15, h * 0.65, 22, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P17A', partnerId: 'P17B' } }),
+        Bodies.rectangle(w * 0.15, h * 0.75, 100, 20, { isStatic: true, label: 'gate', plugin: { gateId: gateA } }),
+        // ゲートAを開くスイッチA
+        Bodies.circle(w * 0.35, h * 0.65, 20, { isStatic: true, isSensor: true, label: 'switch', plugin: { gateId: gateA, activated: false } }),
+        
+        // --- エリア2（右下） ---
+        // ポータルAの出口B
+        Bodies.circle(w * 0.85, h * 0.85, 22, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P17B', partnerId: 'P17A' } }),
+        // エリア3（右上）へのポータルC（ゲートで封鎖）
+        Bodies.circle(w * 0.85, h * 0.6, 22, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P17C', partnerId: 'P17D' } }),
+        Bodies.rectangle(w * 0.85, h * 0.7, 100, 20, { isStatic: true, label: 'gate', plugin: { gateId: gateB } }),
+        // ゲートBを開くスイッチB
+        Bodies.circle(w * 0.65, h * 0.8, 20, { isStatic: true, isSensor: true, label: 'switch', plugin: { gateId: gateB, activated: false } }),
+        // お邪魔トラップ
+        Bodies.circle(w * 0.72, h * 0.65, 25, { isStatic: true, label: 'trap' }),
+        
+        // --- エリア3（右上） ---
+        // ポータルCの出口D
+        Bodies.circle(w * 0.85, h * 0.35, 22, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P17D', partnerId: 'P17C' } }),
+        // エリア4（左上）へのポータルE（ゲートで封鎖）
+        Bodies.circle(w * 0.65, h * 0.15, 22, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P17E', partnerId: 'P17F' } }),
+        Bodies.rectangle(w * 0.65, h * 0.25, 20, 100, { isStatic: true, label: 'gate', plugin: { gateId: gateC } }),
+        // ゲートCを開くスイッチC
+        Bodies.circle(w * 0.85, h * 0.15, 20, { isStatic: true, isSensor: true, label: 'switch', plugin: { gateId: gateC, activated: false } }),
+        
+        // --- エリア4（左上：ゴール） ---
+        // ポータルEの出口F
+        Bodies.circle(w * 0.15, h * 0.35, 22, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P17F', partnerId: 'P17E' } }),
+        // ゴール直前の邪魔トラップ
+        Bodies.circle(w * 0.3, h * 0.3, 30, { isStatic: true, label: 'trap' })
+      ]);
+    } else if (n === 18) {
+      // Stage 18: 「ダブル・ゲート・エスケープ」（逃げるゴールと両翼の解除）
+      // 逃げるゴール
+      goal.plugin = { type: 'escaping_goal', speed: 3.2 };
+      Composite.add(this.engine.world, goal);
+      
+      const gateL = 'gate18L';
+      const gateR = 'gate18R';
+      
+      Composite.add(this.engine.world, [
+        // 画面を左右に分断する中央壁
+        Bodies.rectangle(w / 2, h * 0.55, 20, h * 0.7, { isStatic: true, label: 'wall' }),
+        
+        // ゴール（上部中央）を左右から挟む2つのゲート
+        Bodies.rectangle(w * 0.42, 170, 70, 20, { isStatic: true, label: 'gate', plugin: { gateId: gateL } }),
+        Bodies.rectangle(w * 0.58, 170, 70, 20, { isStatic: true, label: 'gate', plugin: { gateId: gateR } }),
+        
+        // 左右を行き来するためのポータル
+        Bodies.circle(w * 0.15, h * 0.85, 25, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P18A', partnerId: 'P18B' } }),
+        Bodies.circle(w * 0.85, h * 0.85, 25, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P18B', partnerId: 'P18A' } }),
+        
+        // --- 左側エリア ---
+        // ゲートLを開くスイッチL（強風風車でガード）
+        Bodies.circle(w * 0.15, h * 0.55, 20, { isStatic: true, isSensor: true, label: 'switch', plugin: { gateId: gateL, activated: false } }),
+        Bodies.rectangle(w * 0.15, h * 0.7, w * 0.25, 16, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.08 } }),
+        
+        // --- 右側エリア ---
+        // ゲートRを開くスイッチR（イライラ棒トラップでガード）
+        Bodies.circle(w * 0.85, h * 0.55, 20, { isStatic: true, isSensor: true, label: 'switch', plugin: { gateId: gateR, activated: false } }),
+        Bodies.circle(w * 0.85, h * 0.7, 30, { isStatic: true, label: 'trap' }),
+        Bodies.circle(w * 0.68, h * 0.45, 30, { isStatic: true, label: 'trap' })
+      ]);
+    } else if (n === 19) {
+      // Stage 19: 「バンパー・パラダイス」（反射ピンボール・高難易度）
+      Composite.add(this.engine.world, goal);
+      
+      const bumpers = [];
+      // グリッド状に高反発バンパーと即死トラップを配置
+      for (let i = 0; i < 5; i++) {
+        const y = h * 0.25 + h * 0.12 * i;
+        const shift = (i % 2 === 0) ? 0 : w * 0.11;
+        
+        for (let j = 0; j < 4; j++) {
+          const x = w * 0.12 + w * 0.24 * j + shift;
+          if (x > w - 20 || x < 20) continue;
+          
+          const isBumper = (i + j) % 2 === 0;
+          if (isBumper) {
+            bumpers.push(Bodies.circle(x, y, 16, { isStatic: true, restitution: 2.2, label: 'bumper' }));
+          } else {
+            bumpers.push(Bodies.circle(x, y, 24, { isStatic: true, label: 'trap' }));
+          }
+        }
+      }
+      Composite.add(this.engine.world, bumpers);
+      
+      // スタート位置付近の壁（暴発・ショートカット防止）
+      Composite.add(this.engine.world, [
+        Bodies.rectangle(w * 0.2, h - 150, 100, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w * 0.8, h - 150, 100, 20, { isStatic: true, label: 'wall' })
+      ]);
+    } else if (n === 20) {
+      // Stage 20: 真・最終試練「グラビティ・マスタリー」（超複合・最高難易度）
+      // プレイヤーの初期位置を左下に
+      Body.setPosition(player, { x: w * 0.1, y: h - 100 });
+      
+      // 近づくと逃げるゴール
+      goal.plugin = { type: 'escaping_goal', speed: 3.2 };
+      Composite.add(this.engine.world, goal);
+      
+      const gateId = 'gate20';
+      Composite.add(this.engine.world, [
+        // 十字の領域仕切り壁
+        Bodies.rectangle(w / 2, h / 2, w, 20, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(w * 0.5, h / 2, 20, h, { isStatic: true, label: 'wall' }),
+        
+        // --- 1. エリア1（左下：スタート） ---
+        // メタル化アイテム
+        Bodies.circle(w * 0.1, h * 0.85, 18, { isStatic: true, isSensor: true, label: 'item_metal', plugin: { active: true } }),
+        // 上り坂の強風車（メタル化していないと右上のトラップへ吹き飛ばされる）
+        Bodies.rectangle(w * 0.25, h * 0.7, w * 0.35, 16, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: 0.11 } }),
+        Bodies.circle(w * 0.38, h * 0.65, 30, { isStatic: true, label: 'trap' }),
+        // エリア2（右下）へのポータルA
+        Bodies.circle(w * 0.4, h * 0.9, 25, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P20A', partnerId: 'P20B' } }),
+        
+        // --- 2. エリア2（右下） ---
+        // ポータルAの出口B
+        Bodies.circle(w * 0.6, h * 0.9, 25, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P20B', partnerId: 'P20A' } }),
+        // スイッチ（右上ポータルCのゲートを開く）
+        Bodies.circle(w * 0.9, h * 0.9, 20, { isStatic: true, isSensor: true, label: 'switch', plugin: { gateId, activated: false } }),
+        // エリア3（右上）へのポータルC（ゲートで封鎖）
+        Bodies.rectangle(w * 0.8, h * 0.7, 100, 20, { isStatic: true, label: 'gate', plugin: { gateId } }),
+        Bodies.circle(w * 0.8, h * 0.6, 25, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P20C', partnerId: 'P20D' } }),
+        
+        // --- 3. エリア3（右上） ---
+        // ポータルCの出口D
+        Bodies.circle(w * 0.8, h * 0.4, 25, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P20D', partnerId: 'P20C' } }),
+        // エリア4（左上）へのポータルE（即死トラップで超厳重にガード）
+        Bodies.circle(w * 0.6, h * 0.15, 25, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P20E', partnerId: 'P20F' } }),
+        Bodies.circle(w * 0.6, h * 0.3, 30, { isStatic: true, label: 'trap' }), // 下ガード
+        Bodies.circle(w * 0.72, h * 0.15, 30, { isStatic: true, label: 'trap' }), // 右ガード
+        // 反射でポータルへ滑り込ませるためのアシストバンパー
+        Bodies.circle(w * 0.9, h * 0.25, 35, { isStatic: true, restitution: 1.8, label: 'bumper' }),
+        
+        // --- 4. エリア4（左上：ゴールルーム） ---
+        // ポータルEの出口F
+        Bodies.circle(w * 0.2, h * 0.15, 25, { isStatic: true, isSensor: true, label: 'portal', plugin: { portalId: 'P20F', partnerId: 'P20E' } }),
+        // 逃げるゴールを邪魔する回転風車
+        Bodies.rectangle(w * 0.25, h * 0.3, w * 0.35, 16, { isStatic: true, label: 'wall', plugin: { type: 'windmill', speed: -0.06 } })
       ]);
     }
 
@@ -495,7 +696,7 @@ export class StageManager {
     
     // アイテムの復活時間更新
     for (const body of bodies) {
-      if (body.label === 'item_metal' || body.label === 'item_rubber') {
+      if (body.label === 'item_metal') {
         const plugin = body.plugin;
         if (plugin && !plugin.active) {
           plugin.collectedFrame++;

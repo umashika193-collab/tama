@@ -93,7 +93,7 @@ const renderer = new Renderer(app, engine);
 const stageManager = new StageManager(engine);
 const urlParams = new URLSearchParams(window.location.search);
 const startStageParam = urlParams.get('stage');
-let currentStage = startStageParam ? parseInt(startStageParam, 10) : 1; // テストモードオフ（ステージ1から開始）
+let currentStage = startStageParam ? parseInt(startStageParam, 10) : 16; // テストモードオン（ステージ16から開始）
 const initialStage = currentStage;
 let isGameOver = false;
 let hasGyro = false; // ジャイロが有効かどうかのフラグ
@@ -102,20 +102,14 @@ stageManager.onClear = () => {
   soundManager.playClear();
   const current = stageManager.getCurrentStage();
 
-  if (current === 10 || current >= 15) {
+  if (current === 10) {
     endingScreen.style.display = 'block';
     restartButton.style.display = 'none';
     continueButton.style.display = 'none';
     calibrateButton.style.display = 'none'; // エンディング画面では非表示
 
-
-    if (current === 10) {
-      endingTitle.textContent = 'CONGRATULATIONS!';
-      endingSub.textContent = '全10ステージクリア！';
-    } else {
-      endingTitle.textContent = 'TRUE CONGRATULATIONS!';
-      endingSub.textContent = '真・全15ステージクリア！';
-    }
+    endingTitle.textContent = 'CONGRATULATIONS!';
+    endingSub.textContent = '全10ステージクリア！';
     
     // アニメーションをリセットして再生
     const roll = document.querySelector('.credits-roll') as HTMLElement;
@@ -127,9 +121,7 @@ stageManager.onClear = () => {
 
     setTimeout(() => {
       restartButton.style.display = 'block';
-      if (current === 10) {
-        continueButton.style.display = 'block';
-      }
+      continueButton.style.display = 'block';
     }, 12500);
   } else {
     statusMessage.textContent = 'STAGE CLEAR!';
@@ -137,7 +129,11 @@ stageManager.onClear = () => {
     statusMessage.style.display = 'block';
     setTimeout(() => {
       statusMessage.style.display = 'none';
-      stageManager.initStage(current + 1);
+      if (current >= 20) {
+        stageManager.initStage(1); // ステージ20クリア後はステージ1へ戻る
+      } else {
+        stageManager.initStage(current + 1);
+      }
     }, 2000);
   }
 };
@@ -164,7 +160,7 @@ stageManager.onMiss = () => {
 stageManager.onStageChange = (stage) => {
   stageIndicator.textContent = `STAGE ${stage}`;
   stageIndicator.style.display = 'block';
-  soundManager.playBGM(false); // プレイ中は常にプレイ用BGM(test1.mp3)を維持
+  soundManager.playBGM(false, stage); // ステージ番号を渡す
 };
 
 

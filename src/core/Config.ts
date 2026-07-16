@@ -15,12 +15,6 @@ export const GAME_CONFIG = {
     density: 0.004, // 4 times heavier
     duration: 360  // 6 seconds at 60fps
   },
-  ballRubber: {
-    restitution: 1.9, // Extremely bouncy
-    friction: 0.005,
-    density: 0.0005, // 2 times lighter
-    duration: 300  // 5 seconds at 60fps
-  },
   
   // Portal & Gimmick cooldowns
   portalCooldown: 60, // frames to prevent immediate re-teleportation
