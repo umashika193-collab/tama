@@ -248,7 +248,7 @@ export class Renderer {
     this.createSparks(toX, toY, 0xe67e22, 10);
   }
 
-  private triggerItemCollectEffects(x: number, y: number, type: 'metal') {
+  private triggerItemCollectEffects(x: number, y: number, _type: 'metal') {
     const color = 0xbdc3c7;
     this.warpRings.push({
       x: x,
