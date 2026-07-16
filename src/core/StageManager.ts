@@ -531,6 +531,12 @@ export class StageManager {
       }
       Composite.add(this.engine.world, bumpers);
       
+      // 左右の外枠沿いを完全に塞ぐ即死トラップ壁を追加
+      Composite.add(this.engine.world, [
+        Bodies.rectangle(10, h * 0.5, 20, h * 0.7, { isStatic: true, label: 'trap' }), // 左の即死壁
+        Bodies.rectangle(w - 10, h * 0.5, 20, h * 0.7, { isStatic: true, label: 'trap' }) // 右の即死壁
+      ]);
+      
       // スタート位置付近の壁（暴発・ショートカット防止）
       Composite.add(this.engine.world, [
         Bodies.rectangle(w * 0.2, h - 150, 100, 20, { isStatic: true, label: 'wall' }),
